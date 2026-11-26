@@ -3,6 +3,7 @@ import Health from "../components/Health.ts";
 import ChargeLaser from "../components/ChargeLaser.ts";
 import Boss from "../entities/Boss.ts";
 import type {BossesData} from "../gameData/BossesData.ts";
+import type {PlayerData} from "../gameData/PlayerData.ts";
 import Bullet from "../entities/Bullet.ts";
 import BaseEnemy from "../entities/BaseEnemy.ts";
 import Enemy from "../entities/Enemy.ts";
@@ -214,7 +215,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
             enemyHealth?.damage(enemyHealth?.max);
 
             const playerHealth = (player as Player).getComponent(Health);
-            playerHealth?.damage(1);
+            playerHealth?.damage((this.scene!.cache.json.get('player') as PlayerData).contactDamage);
 
             this.scene?.cameras.main.shake(100, 0.03);
         });

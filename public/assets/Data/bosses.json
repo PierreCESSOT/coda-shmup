@@ -19,9 +19,9 @@
       "attackDelay": 1400,
       "attacks": [
         { "count": 7, "angle": 90, "aimAtPlayer": false,
-          "bullet": { "width": 18, "height": 18, "color": "#ffd93c", "speed": 380, "damage": 1 } },
+          "bullet": { "width": 18, "height": 18, "color": "#ffd93c", "speed": 380, "damage": 10 } },
         { "count": 12, "angle": 360, "aimAtPlayer": false,
-          "bullet": { "width": 18, "height": 18, "color": "#ffd93c", "speed": 300, "damage": 1 } }
+          "bullet": { "width": 18, "height": 18, "color": "#ffd93c", "speed": 300, "damage": 10 } }
       ]
     },
     {
@@ -35,9 +35,9 @@
       "attackDelay": 1100,
       "attacks": [
         { "count": 36, "angle": 360, "aimAtPlayer": false,
-          "bullet": { "width": 22, "height": 8, "color": "#c77dff", "speed": 260, "damage": 1 } },
+          "bullet": { "width": 22, "height": 8, "color": "#c77dff", "speed": 260, "damage": 10 } },
         { "count": 5, "angle": 30, "aimAtPlayer": true,
-          "bullet": { "width": 22, "height": 8, "color": "#c77dff", "speed": 520, "damage": 1 } }
+          "bullet": { "width": 22, "height": 8, "color": "#c77dff", "speed": 520, "damage": 10 } }
       ]
     },
     {
@@ -51,11 +51,11 @@
       "attackDelay": 700,
       "attacks": [
         { "count": 3, "angle": 20, "aimAtPlayer": true,
-          "bullet": { "width": 28, "height": 6, "color": "#ff5050", "speed": 700, "damage": 1 } },
+          "bullet": { "width": 28, "height": 6, "color": "#ff5050", "speed": 700, "damage": 10 } },
         { "count": 3, "angle": 20, "aimAtPlayer": true,
-          "bullet": { "width": 28, "height": 6, "color": "#ff5050", "speed": 700, "damage": 1 } },
+          "bullet": { "width": 28, "height": 6, "color": "#ff5050", "speed": 700, "damage": 10 } },
         { "count": 9, "angle": 120, "aimAtPlayer": false,
-          "bullet": { "width": 28, "height": 6, "color": "#ff5050", "speed": 420, "damage": 1 } }
+          "bullet": { "width": 28, "height": 6, "color": "#ff5050", "speed": 420, "damage": 10 } }
       ]
     }
   ]

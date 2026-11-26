@@ -51,6 +51,7 @@ export default class HomeScene extends Phaser.Scene {
         this.load.bitmapFont('future-bmp', 'Fonts/kenvector_future.png', 'Fonts/kenvector_future.xml');
         this.load.font('future', 'Fonts/kenvector_future.ttf');
         this.load.json('playerShips', 'Data/playerShips.json');
+        this.load.json('player', 'Data/player.json');
         this.load.json('enemies', 'Data/enemies.json');
         this.load.json('shipColors', 'Data/shipColors.json');
         this.load.json('streak', 'Data/streak.json');

@@ -4,6 +4,7 @@ import {ShipColorData} from "../gameData/ShipColorData.ts";
 import type {BulletData} from "../gameData/BulletData.ts";
 import {toBulletData} from "../gameData/BulletConfigData.ts";
 import {StreakData} from "../gameData/StreakData.ts";
+import {PlayerData} from "../gameData/PlayerData.ts";
 import {BossesData} from "../gameData/BossesData.ts";
 import Entity from './Entity.ts';
 import Health from "../components/Health.ts";
@@ -49,7 +50,8 @@ export default class Player extends Entity {
     }
 
     public init(bulletsGroup: Phaser.Physics.Arcade.Group) {
-        this.addComponent(new Health(3, this));
+        const playerData = this.scene.cache.json.get('player') as PlayerData;
+        this.addComponent(new Health(playerData.health, this));
         this.addComponent(new Movement());
         this.addComponent(new Weapon(bulletsGroup, this._bulletData));
 

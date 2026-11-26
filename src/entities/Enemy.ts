@@ -9,7 +9,7 @@ export default class Enemy extends BaseEnemy {
         height: 12,
         color: 0xf25f5c,
         speed: 512,
-        damage: 1,
+        damage: 10,
     };
 
     public init(bulletsGroup: Phaser.Physics.Arcade.Group) {
