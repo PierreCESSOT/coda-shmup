@@ -1,0 +1,15 @@
+{
+  "killsRequired": 10,
+  "laser": {
+    "fireRate": 0.12,
+    "sound": "sfx_laser2",
+    "glowColor": "#4de8ff",
+    "bullet": {
+      "width": 140,
+      "height": 10,
+      "color": "#4de8ff",
+      "speed": 2200,
+      "damage": 2
+    }
+  }
+}
