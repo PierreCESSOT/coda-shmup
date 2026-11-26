@@ -1,0 +1,30 @@
+{
+    "straightUfo": {
+      "texture": "ufoRed",
+      "spawnDelay": 1500,
+      "maxActive": 5,
+      "movement": {
+        "speed": 0.2,
+        "amplitude": 0,
+        "frequency": 0
+      },
+      "spreadShot": {
+        "bulletCount": 1,
+        "spreadAngle": 0
+      }
+    },
+    "sineUfo": {
+      "texture": "ufoGreen",
+      "spawnDelay": 4000,
+      "maxActive": 3,
+      "movement": {
+        "speed": 0.15,
+        "amplitude": 150,
+        "frequency": 0.5
+      },
+      "spreadShot": {
+        "bulletCount": 5,
+        "spreadAngle": 60
+      }
+    }
+  }
