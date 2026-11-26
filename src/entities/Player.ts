@@ -16,8 +16,13 @@ import RegistryConstants from "../RegistryConstants.ts";
 import GameConstants from "../GameConstants.ts";
 
 export default class Player extends Entity {
+    private static readonly MAX_HEALTH: number = 3;
+    private static readonly DEFAULT_SHIP_ID: number = 1;
     private static readonly DEFAULT_RATE_OF_FIRE: number = 0.5;
-    private static readonly DEFAULT_SHOOT_SOUND: string = 'sfx_laser1';
+    private static readonly DEFAULT_SHOOT_SOUND: string = GameConstants.AudioKeys.PLAYER_SHOOT;
+    private static readonly FACING_UP_ANGLE: number = -90;
+    private static readonly HIT_INVULNERABILITY_DURATION: number = 50;
+    private static readonly STREAK_GLOW_STRENGTH: number = 6;
 
     private readonly _bulletData: BulletData = {
         width: 12,
@@ -36,7 +41,7 @@ export default class Player extends Entity {
     private _lastShotTime: number;
 
     constructor(scene: Scene, x: number, y: number) {
-        super(scene, x, y, 'sprites');
+        super(scene, x, y, GameConstants.ATLAS_KEY);
 
         if (this.scene.input.keyboard) {
             this._cursorKeys = this.scene.input.keyboard.createCursorKeys();
@@ -49,61 +54,90 @@ export default class Player extends Entity {
     }
 
     public init(bulletsGroup: Phaser.Physics.Arcade.Group) {
-        this.addComponent(new Health(3, this));
+        this.addComponent(new Health(Player.MAX_HEALTH, this));
         this.addComponent(new Movement());
         this.addComponent(new Weapon(bulletsGroup, this._bulletData));
+        this.initChargeLaser();
+        this.initKillStreak();
+        this.listenToEnemyKills();
 
-        // Disabled until a boss can be finished
-        const bossesData = this.scene.cache.json.get('bosses') as BossesData;
-        this.addComponent(new ChargeLaser(this, bossesData.finisher));
-
-        this._streakData = this.scene.cache.json.get('streak') as StreakData;
-        const killStreak = new KillStreak(this._streakData.killsRequired);
-        killStreak.on(KillStreak.START_EVENT, this.onStreakStarted, this);
-        killStreak.on(KillStreak.END_EVENT, this.onStreakEnded, this);
-        this.addComponent(killStreak);
-
-        // Game events outlive the scene: stop listening when it shuts down (e.g. on restart)
-        const gameEvents = this.scene.game.events;
-        gameEvents.on(GameConstants.Events.ENEMY_KILLED_EVENT, this.onEnemyKilled, this);
-        this.scene.events.once(Scenes.Events.SHUTDOWN, () => {
-            gameEvents.off(GameConstants.Events.ENEMY_KILLED_EVENT, this.onEnemyKilled, this);
-        });
-
-        this.angle = -90;
+        this.angle = Player.FACING_UP_ANGLE;
 
         // Ship chosen in the home menu
-        this.selectPlayerShip(this.scene.registry.get(RegistryConstants.Keys.PLAYER_SHIP_ID) ?? 1);
+        this.selectPlayerShip(this.scene.registry.get(RegistryConstants.Keys.PLAYER_SHIP_ID) ?? Player.DEFAULT_SHIP_ID);
 
         this._rateOfFire = Player.DEFAULT_RATE_OF_FIRE;
         this._shootSound = Player.DEFAULT_SHOOT_SOUND;
         this._lastShotTime = 0;
 
-        this.getComponent(Health)?.on(Health.CHANGE_EVENT, () => {
-            // The player can only lose health: any change breaks the streak
-            this.getComponent(KillStreak)?.reset();
-
-            this.arcadeBody.setEnable(false);
-
-            this.scene.time.delayedCall(50, () => {
-                // A dead player stays disabled
-                if (this.active)
-                    this.arcadeBody.setEnable(true);
-            });
-        });
+        this.getComponent(Health)?.on(Health.CHANGE_EVENT, this.onHealthChanged, this);
     }
 
     public selectPlayerShip(playerShipDataId: number) {
-        const playerShipsData = this.scene.cache.json.get('playerShips') as PlayerShipsData;
+        const playerShipsData = this.scene.cache.json.get(GameConstants.DataKeys.PLAYER_SHIPS) as PlayerShipsData;
         this._playerShipData = playerShipsData[playerShipDataId];
 
-        const shipColors = this.scene.cache.json.get('shipColors') as ShipColorData[];
+        const shipColors = this.scene.cache.json.get(GameConstants.DataKeys.SHIP_COLORS) as ShipColorData[];
         const colorIndex: number = this.scene.registry.get(RegistryConstants.Keys.PLAYER_SHIP_COLOR) ?? 0;
         ShipAppearance.apply(this, this._playerShipData, shipColors[colorIndex] ?? shipColors[0]);
         const bodyData = this._playerShipData.body;
         this.arcadeBody.setCircle(bodyData.radius, bodyData.offsetX, bodyData.offsetY);
 
         this.getComponent(Movement)?.setSpeed(this._playerShipData.movementSpeed);
+    }
+
+    preUpdate(timeSinceLaunch: number, deltaTime: number) {
+        super.preUpdate(timeSinceLaunch, deltaTime);
+
+        this.handleMovementInput(deltaTime);
+        // Stop player from going offscreen
+        this.x = Phaser.Math.Clamp(this.x, this.displayWidth / 2, this.scene.cameras.main.width - this.displayWidth / 2);
+
+        // Hold F to charge the finisher laser
+        this.getComponent(ChargeLaser)?.update(this, this.active && (this._chargeLaserKey?.isDown ?? false), deltaTime);
+
+        this.handleShootInput(timeSinceLaunch);
+    }
+
+    // Disabled until a boss can be finished
+    private initChargeLaser() {
+        const bossesData = this.scene.cache.json.get(GameConstants.DataKeys.BOSSES) as BossesData;
+        this.addComponent(new ChargeLaser(this, bossesData.finisher));
+    }
+
+    private initKillStreak() {
+        this._streakData = this.scene.cache.json.get(GameConstants.DataKeys.STREAK) as StreakData;
+
+        const killStreak = new KillStreak(this._streakData.killsRequired);
+        killStreak.on(KillStreak.START_EVENT, this.onStreakStarted, this);
+        killStreak.on(KillStreak.END_EVENT, this.onStreakEnded, this);
+        this.addComponent(killStreak);
+    }
+
+    // Game events outlive the scene: stop listening when it shuts down (e.g. on restart)
+    private listenToEnemyKills() {
+        const gameEvents = this.scene.game.events;
+        gameEvents.on(GameConstants.Events.ENEMY_KILLED_EVENT, this.onEnemyKilled, this);
+        this.scene.events.once(Scenes.Events.SHUTDOWN, () => {
+            gameEvents.off(GameConstants.Events.ENEMY_KILLED_EVENT, this.onEnemyKilled, this);
+        });
+    }
+
+    private onHealthChanged() {
+        // The player can only lose health: any change breaks the streak
+        this.getComponent(KillStreak)?.reset();
+
+        this.disableCollisionsBriefly();
+    }
+
+    private disableCollisionsBriefly() {
+        this.arcadeBody.setEnable(false);
+
+        this.scene.time.delayedCall(Player.HIT_INVULNERABILITY_DURATION, () => {
+            // A dead player stays disabled
+            if (this.active)
+                this.arcadeBody.setEnable(true);
+        });
     }
 
     private onEnemyKilled() {
@@ -117,7 +151,7 @@ export default class Player extends Entity {
         this._shootSound = laserData.sound;
 
         // Glow only exists with the WebGL renderer
-        this.preFX?.addGlow(Display.Color.HexStringToColor(laserData.glowColor).color, 6);
+        this.preFX?.addGlow(Display.Color.HexStringToColor(laserData.glowColor).color, Player.STREAK_GLOW_STRENGTH);
     }
 
     private onStreakEnded() {
@@ -128,37 +162,41 @@ export default class Player extends Entity {
         this.preFX?.clear();
     }
 
-    preUpdate(timeSinceLaunch: number, deltaTime: number) {
-        super.preUpdate(timeSinceLaunch, deltaTime);
+    // Left and right arrow keys move the player smoothly using deltaTime, or rotate it while Shift is held
+    private handleMovementInput(deltaTime: number) {
+        const direction: number = this.getHorizontalInputDirection();
+        if (direction === 0)
+            return;
 
-        // Press left or right arrow keys to move the player smoothly horizontally using deltaTime
-        if (this._cursorKeys.left.isDown) {
-            if (this._cursorKeys.shift.isDown) {
-                this.angle -= this._playerShipData.movementSpeed * deltaTime;
-            } else {
-                this.getComponent(Movement)?.moveHorizontally(this, -deltaTime);
-            }
-        } else if (this._cursorKeys.right.isDown) {
-            if (this._cursorKeys.shift.isDown) {
-                this.angle += this._playerShipData.movementSpeed * deltaTime;
-            } else {
-                this.getComponent(Movement)?.moveHorizontally(this, deltaTime);
-            }
-        }
-        // Stop player from going offscreen
-        this.x = Phaser.Math.Clamp(this.x, this.displayWidth / 2, this.scene.cameras.main.width - this.displayWidth / 2);
+        if (this._cursorKeys.shift.isDown)
+            this.angle += direction * this._playerShipData.movementSpeed * deltaTime;
+        else
+            this.getComponent(Movement)?.moveHorizontally(this, direction * deltaTime);
+    }
 
-        // Hold F to charge the finisher laser
-        this.getComponent(ChargeLaser)?.update(this, this.active && (this._chargeLaserKey?.isDown ?? false), deltaTime);
+    // -1 for left, 1 for right, 0 when idle (left wins if both keys are down)
+    private getHorizontalInputDirection(): number {
+        if (this._cursorKeys.left.isDown)
+            return -1;
 
-        // Press space to shoot
-        if (this._cursorKeys.space.isDown) {
-            if (timeSinceLaunch - this._lastShotTime > this._rateOfFire * 1000) {
-                this.getComponent(Weapon)?.shoot(this);
-                this.scene.sound.play(this._shootSound);
+        if (this._cursorKeys.right.isDown)
+            return 1;
 
-                this._lastShotTime = timeSinceLaunch;
-            }
-        }
+        return 0;
+    }
+
+    // Press space to shoot
+    private handleShootInput(timeSinceLaunch: number) {
+        if (!this._cursorKeys.space.isDown || !this.isWeaponReady(timeSinceLaunch))
+            return;
+
+        this.getComponent(Weapon)?.shoot(this);
+        this.scene.sound.play(this._shootSound);
+
+        this._lastShotTime = timeSinceLaunch;
+    }
+
+    private isWeaponReady(timeSinceLaunch: number): boolean {
+        return timeSinceLaunch - this._lastShotTime > this._rateOfFire * 1000;
     }
 }
