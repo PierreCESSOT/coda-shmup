@@ -1,7 +1,7 @@
 {
   "scoreInterval": 20,
-  "ultraEvery": 5,
-  "healthGrowthPerCycle": 0.5,
+  "ultraEvery": 3,
+  "healthGrowthPerCycle": 0.3,
   "finisher": {
     "healthThreshold": 0.2,
     "chargeTime": 1.2,
