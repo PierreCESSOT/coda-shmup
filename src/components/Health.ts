@@ -37,6 +37,12 @@ export default class Health extends Phaser.Events.EventEmitter implements ICompo
         this.adjust(amount, emitEvents);
     }
 
+    // Heals a random percentage of the max health, between min and max (included)
+    public healRandomPercent(minPercent: number, maxPercent: number): void {
+        const percent: number = Phaser.Math.Between(minPercent, maxPercent);
+        this.heal(Math.round(this._max * percent / 100));
+    }
+
     private adjust(delta: number, emitEvents: boolean = true): void {
         if (!this.enabled)
             return;

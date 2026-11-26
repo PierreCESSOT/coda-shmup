@@ -179,6 +179,13 @@ export default class EntityManager extends Plugins.ScenePlugin {
         this._nextBossScore = Number(this.scene!.registry.get(RegistryConstants.Keys.PLAYER_SCORE)) + this._bossesData.scoreInterval;
 
         this._player.getComponent(ChargeLaser)?.disarm();
+
+        // Reward: heal the player, more after an ultra boss
+        const healData = (this.scene!.cache.json.get('player') as PlayerData).heal;
+        const healRange = boss.isUltra ? healData.ultraBoss : healData.boss;
+        if (this._player.active)
+            this._player.getComponent(Health)?.healRandomPercent(healRange.min, healRange.max);
+
         this.game!.events.emit(GameConstants.Events.BOSS_KILLED_EVENT, boss);
 
         console.log("[EntityManager] Boss killed: " + boss.bossName);

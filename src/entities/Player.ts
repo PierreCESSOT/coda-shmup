@@ -34,6 +34,7 @@ export default class Player extends Entity {
     private _rateOfFire: number;
     private _shootSound: string;
     private _streakData: StreakData;
+    private _playerData: PlayerData;
     private _lastShotTime: number;
 
     constructor(scene: Scene, x: number, y: number) {
@@ -50,8 +51,8 @@ export default class Player extends Entity {
     }
 
     public init(bulletsGroup: Phaser.Physics.Arcade.Group) {
-        const playerData = this.scene.cache.json.get('player') as PlayerData;
-        this.addComponent(new Health(playerData.health, this));
+        this._playerData = this.scene.cache.json.get('player') as PlayerData;
+        this.addComponent(new Health(this._playerData.health, this));
         this.addComponent(new Movement());
         this.addComponent(new Weapon(bulletsGroup, this._bulletData));
 
@@ -116,6 +117,9 @@ export default class Player extends Entity {
     }
 
     private onStreakStarted() {
+        const healData = this._playerData.heal.streak;
+        this.getComponent(Health)?.healRandomPercent(healData.min, healData.max);
+
         const laserData = this._streakData.laser;
         this.getComponent(Weapon)?.setBulletData(toBulletData(laserData.bullet));
         this._rateOfFire = laserData.fireRate;

@@ -1,4 +1,18 @@
 {
   "health": 100,
-  "contactDamage": 20
+  "contactDamage": 20,
+  "heal": {
+    "streak": {
+      "min": 5,
+      "max": 10
+    },
+    "boss": {
+      "min": 10,
+      "max": 15
+    },
+    "ultraBoss": {
+      "min": 15,
+      "max": 20
+    }
+  }
 }
