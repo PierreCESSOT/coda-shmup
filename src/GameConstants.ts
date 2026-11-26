@@ -15,5 +15,27 @@ export default class GameConstants {
         GAME_OVER: "GameOverScene",
     } as const);
 
+    // Keys of the JSON files in the Phaser cache
+    public static readonly DataKeys = Object.freeze({
+        PLAYER_SHIPS: "playerShips",
+        ENEMIES: "enemies",
+        SHIP_COLORS: "shipColors",
+        STREAK: "streak",
+        BOSSES: "bosses",
+    } as const);
+
+    public static readonly AudioKeys = Object.freeze({
+        PLAYER_SHOOT: "sfx_laser1",
+        ENEMY_SHOOT: "sfx_laser2",
+    } as const);
+
+    public static readonly FontKeys = Object.freeze({
+        BITMAP: "future-bmp",
+        TRUETYPE: "future",
+    } as const);
+
+    // Key of the atlas holding every sprite of the game
+    public static readonly ATLAS_KEY: string = "sprites";
+
     public static readonly MAX_SCORE_DIGITS: number = 6;
 }
