@@ -6,12 +6,14 @@ import Weapon from "./Weapon.ts";
 
 // Fires several bullets at once, fanned out around the source forward direction
 export default class SpreadWeapon extends Weapon {
-    private readonly _spreadShotData: SpreadPatternData;
+    private static readonly FULL_CIRCLE_DEGREES: number = 360;
 
-    constructor(bullets: Physics.Arcade.Group, bulletData: BulletData, spreadShotData: SpreadPatternData) {
+    private readonly _pattern: SpreadPatternData;
+
+    constructor(bullets: Physics.Arcade.Group, bulletData: BulletData, pattern: SpreadPatternData) {
         super(bullets, bulletData);
 
-        this._spreadShotData = spreadShotData;
+        this._pattern = pattern;
     }
 
     public shoot(source: Entity) {
@@ -23,21 +25,23 @@ export default class SpreadWeapon extends Weapon {
         if (!this.enabled)
             return;
 
-        const count: number = Math.max(1, Math.floor(this._spreadShotData.count));
-        if (count === 1) {
-            this.fireBullet(source, direction);
-            return;
+        for (const bulletAngle of this.getBulletAngles(direction)) {
+            this.fireBullet(source, bulletAngle);
         }
+    }
 
-        const spreadAngle: number = Phaser.Math.DegToRad(this._spreadShotData.angle);
-        const isFullCircle: boolean = this._spreadShotData.angle >= 360;
+    private getBulletAngles(direction: number): number[] {
+        const count: number = Math.max(1, Math.floor(this._pattern.count));
+        if (count === 1)
+            return [direction];
+
+        const spreadAngle: number = Phaser.Math.DegToRad(this._pattern.angle);
+        const isFullCircle: boolean = this._pattern.angle >= SpreadWeapon.FULL_CIRCLE_DEGREES;
 
         // On a full circle, the first and last bullets would overlap: divide by count instead of count - 1
         const step: number = isFullCircle ? spreadAngle / count : spreadAngle / (count - 1);
         const startAngle: number = isFullCircle ? direction : direction - spreadAngle / 2;
 
-        for (let i: number = 0; i < count; i++) {
-            this.fireBullet(source, startAngle + i * step);
-        }
+        return Array.from({length: count}, (_, index) => startAngle + index * step);
     }
 }
