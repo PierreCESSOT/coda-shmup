@@ -7,7 +7,10 @@ import GameConstants from "../GameConstants.ts";
 import RegistryConstants from "../RegistryConstants.ts";
 
 export default class MainUIScene extends Scene {
-    private _playerHealthText: GameObjects.BitmapText;
+    private static readonly PLAYER_HEALTH_BAR_WIDTH: number = 420;
+
+    private _playerHealthText: GameObjects.Text;
+    private _playerHealthBar: GameObjects.Rectangle;
     private _scoreText: GameObjects.BitmapText;
     private _streakText: GameObjects.Text;
     private _streakKillText: GameObjects.Text;
@@ -41,8 +44,14 @@ export default class MainUIScene extends Scene {
     create() {
         const playerHealthIcon = this.add.image(64, 64, "sprites", "playerLife1_blue")
             .setOrigin(0, 0).setScale(1.5);
-        const playerHealthTextX = playerHealthIcon.x + playerHealthIcon.displayWidth + 16;
-        this._playerHealthText = this.add.bitmapText(playerHealthTextX, 64, "future-bmp", "x0", 128);
+        const barX: number = playerHealthIcon.x + playerHealthIcon.displayWidth + 24;
+        const barY: number = playerHealthIcon.y + playerHealthIcon.displayHeight / 2;
+        this.add.rectangle(barX, barY, MainUIScene.PLAYER_HEALTH_BAR_WIDTH, 40, 0x000000, 0.6)
+            .setOrigin(0, 0.5).setStrokeStyle(4, 0xffffff);
+        this._playerHealthBar = this.add.rectangle(barX, barY, MainUIScene.PLAYER_HEALTH_BAR_WIDTH, 40, 0x5cff7a)
+            .setOrigin(0, 0.5);
+        this._playerHealthText = this.add.text(barX + MainUIScene.PLAYER_HEALTH_BAR_WIDTH / 2, barY, "",
+            {fontSize: '32px', color: '#fff', fontFamily: 'future', stroke: '#000', strokeThickness: 6}).setOrigin(0.5);
 
         let scoreStr: string = "".padStart(GameConstants.MAX_SCORE_DIGITS, "0");
         if (this.registry.has(RegistryConstants.Keys.PLAYER_SCORE))
@@ -80,11 +89,11 @@ export default class MainUIScene extends Scene {
     }
 
     private onPlayerSpawned(player: Player) {
-        this._playerHealthText.setText("x" + player.getComponent(Health)?.current);
-
-        player.getComponent(Health)?.on(Health.CHANGE_EVENT, (current: number) => {
-            this._playerHealthText.setText("x" + current);
-        }, this);
+        const health = player.getComponent(Health);
+        if (health) {
+            this.updatePlayerHealth(health);
+            health.on(Health.CHANGE_EVENT, () => this.updatePlayerHealth(health), this);
+        }
 
         const killStreak = player.getComponent(KillStreak);
         if (killStreak) {
@@ -93,6 +102,14 @@ export default class MainUIScene extends Scene {
             killStreak.on(KillStreak.START_EVENT, this.onStreakStarted, this);
             killStreak.on(KillStreak.END_EVENT, this.onStreakEnded, this);
         }
+    }
+
+    private updatePlayerHealth(health: Health) {
+        const ratio: number = health.current / health.max;
+        this._playerHealthBar.setScale(ratio, 1);
+        // Green, then yellow, then red as health goes down
+        this._playerHealthBar.setFillStyle(ratio > 0.5 ? 0x5cff7a : ratio > 0.25 ? 0xffd93c : 0xff5050);
+        this._playerHealthText.setText(Math.ceil(health.current) + " / " + health.max);
     }
 
     private setBossHudVisible(visible: boolean) {
