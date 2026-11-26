@@ -1,6 +1,7 @@
 import {GameObjects, Scenes, Scene} from "phaser";
 import Health from "../components/Health.ts";
 import KillStreak from "../components/KillStreak.ts";
+import Boss from "../entities/Boss.ts";
 import Player from "../entities/Player.ts";
 import GameConstants from "../GameConstants.ts";
 import RegistryConstants from "../RegistryConstants.ts";
@@ -10,6 +11,10 @@ export default class MainUIScene extends Scene {
     private _scoreText: GameObjects.BitmapText;
     private _streakText: GameObjects.Text;
     private _streakKillText: GameObjects.Text;
+    private _bossNameText: GameObjects.Text;
+    private _bossHealthBar: GameObjects.Rectangle;
+    private _bossHealthBarBackground: GameObjects.Rectangle;
+    private _finisherText: GameObjects.Text;
 
     constructor() {
         super(GameConstants.SceneKeys.MAIN_UI);
@@ -18,10 +23,16 @@ export default class MainUIScene extends Scene {
     // noinspection JSUnusedGlobalSymbols
     init() {
         this.game.events.on(GameConstants.Events.PLAYER_SPAWNED_EVENT, this.onPlayerSpawned, this);
+        this.game.events.on(GameConstants.Events.BOSS_SPAWNED_EVENT, this.onBossSpawned, this);
+        this.game.events.on(GameConstants.Events.BOSS_FINISHER_READY_EVENT, this.onBossFinisherReady, this);
+        this.game.events.on(GameConstants.Events.BOSS_KILLED_EVENT, this.onBossKilled, this);
         this.registry.events.on(RegistryConstants.Events.PLAYER_SCORE_CHANGE, this.onPlayerScoreChanged, this);
 
         this.events.once(Scenes.Events.SHUTDOWN, () => {
             this.game.events.off(GameConstants.Events.PLAYER_SPAWNED_EVENT, this.onPlayerSpawned, this);
+            this.game.events.off(GameConstants.Events.BOSS_SPAWNED_EVENT, this.onBossSpawned, this);
+            this.game.events.off(GameConstants.Events.BOSS_FINISHER_READY_EVENT, this.onBossFinisherReady, this);
+            this.game.events.off(GameConstants.Events.BOSS_KILLED_EVENT, this.onBossKilled, this);
             this.registry.events.off(RegistryConstants.Events.PLAYER_SCORE_CHANGE, this.onPlayerScoreChanged, this);
         }, this);
     }
@@ -45,6 +56,18 @@ export default class MainUIScene extends Scene {
             {fontSize: '48px', color: '#fff', fontFamily: 'future'}).setOrigin(1, 0);
         this._streakKillText = this.add.text(this.scale.width / 2, this.scale.height / 3, "STREAKILL!",
             {fontSize: '120px', color: '#4de8ff', fontFamily: 'future'}).setOrigin(0.5).setVisible(false);
+
+        const centerX: number = this.scale.width / 2;
+        const barWidth: number = this.scale.width - 256;
+        this._bossNameText = this.add.text(centerX, 300, "", {fontSize: '48px', color: '#fff', fontFamily: 'future'})
+            .setOrigin(0.5);
+        this._bossHealthBarBackground = this.add.rectangle(centerX, 360, barWidth, 32, 0x000000, 0.6)
+            .setStrokeStyle(4, 0xffffff);
+        this._bossHealthBar = this.add.rectangle(centerX - barWidth / 2, 360, barWidth, 32, 0xff5050)
+            .setOrigin(0, 0.5);
+        this._finisherText = this.add.text(centerX, this.scale.height - 360, "HOLD F TO CHARGE THE LASER!",
+            {fontSize: '48px', color: '#ff4dff', fontFamily: 'future'}).setOrigin(0.5);
+        this.setBossHudVisible(false);
 
         this.scene.bringToTop();
 
@@ -70,6 +93,43 @@ export default class MainUIScene extends Scene {
             killStreak.on(KillStreak.START_EVENT, this.onStreakStarted, this);
             killStreak.on(KillStreak.END_EVENT, this.onStreakEnded, this);
         }
+    }
+
+    private setBossHudVisible(visible: boolean) {
+        this._bossNameText.setVisible(visible);
+        this._bossHealthBar.setVisible(visible);
+        this._bossHealthBarBackground.setVisible(visible);
+        if (!visible) {
+            this.tweens.killTweensOf(this._finisherText);
+            this._finisherText.setVisible(false);
+        }
+    }
+
+    private onBossSpawned(boss: Boss) {
+        this._bossNameText.setText(boss.bossName);
+        this._bossHealthBar.setScale(1, 1).setFillStyle(0xff5050);
+        this.setBossHudVisible(true);
+
+        const health = boss.getComponent(Health);
+        health?.on(Health.CHANGE_EVENT, (current: number) => {
+            this._bossHealthBar.setScale(current / health.max, 1);
+        }, this);
+    }
+
+    private onBossFinisherReady() {
+        this._bossHealthBar.setFillStyle(0xff4dff);
+        this._finisherText.setVisible(true).setAlpha(1);
+        this.tweens.add({
+            targets: this._finisherText,
+            alpha: 0.3,
+            yoyo: true,
+            repeat: -1,
+            duration: 400
+        });
+    }
+
+    private onBossKilled() {
+        this.setBossHudVisible(false);
     }
 
     private onStreakChanged(killStreak: KillStreak) {

@@ -170,6 +170,8 @@ export default class EntityManager extends Plugins.ScenePlugin {
         this._player.getComponent(ChargeLaser)?.disarm();
         this.game!.events.emit(GameConstants.Events.BOSS_KILLED_EVENT, boss);
 
+        console.log("[EntityManager] Boss killed: " + boss.bossName);
+
         // Bosses are not pooled: destroy it once its death feedback is over
         this.scene!.time.delayedCall(500, () => boss.destroy());
     }
