@@ -4,6 +4,12 @@ import GameConstants from "../GameConstants.ts";
 
 // Shared logic of every enemy: hit feedback, pooling, shoot timer and off-screen recycling
 export default abstract class BaseEnemy extends Entity {
+    protected static readonly FACING_DOWN_ANGLE: number = 90;
+
+    private static readonly HIT_FLASH_COLOR: number = 0xffffff;
+    private static readonly HIT_FLASH_DURATION: number = 50;
+    private static readonly HIT_FLASH_SPEED_FACTOR: number = 0.5;
+
     private _shootTimerConfig: Phaser.Types.Time.TimerEventConfig;
     private _shootTimer: Phaser.Time.TimerEvent;
     private _isHitFlashing: boolean = false;
@@ -21,32 +27,12 @@ export default abstract class BaseEnemy extends Entity {
         this.addComponent(new Health(maxHealth, this));
 
         // Listen once per enemy, not on every enable(): pooled enemies are reused many times
-        const health = this.getComponent(Health);
-        health?.on(Health.CHANGE_EVENT, () => {
-            this._isHitFlashing = true;
-            this.setTintFill(0xffffff);
-
-            if (health?.current == 0)
-            {
-                this.disableBody();
-                this.scene.game.events.emit(GameConstants.Events.ENEMY_KILLED_EVENT, this);
-            }
-
-            this.scene.time.delayedCall(50, () => {
-                this._isHitFlashing = false;
-                this.restoreAppearance();
-
-                if (health?.current == 0)
-                {
-                    this.disable();
-                }
-            });
-        });
+        this.getComponent(Health)?.on(Health.CHANGE_EVENT, this.onHealthChanged, this);
     }
 
     protected initShootTimer(delay: number) {
         this._shootTimerConfig = {
-            delay: delay,
+            delay,
             callback: this.shoot,
             callbackScope: this,
             loop: true
@@ -69,15 +55,13 @@ export default abstract class BaseEnemy extends Entity {
     }
 
     preUpdate(timeSinceLaunch: number, deltaTime: number) {
-        super.preUpdate(timeSinceLaunch, deltaTime)
+        super.preUpdate(timeSinceLaunch, deltaTime);
 
-        // Destroy entities when out of screen
-        if (this.y > this.scene.cameras.main.height + this.displayHeight) {
+        if (this.isBelowScreen)
             this.disable();
-        }
 
         // Slow down while the hit feedback is displayed
-        this.move(this._isHitFlashing ? deltaTime * 0.5 : deltaTime);
+        this.move(this._isHitFlashing ? deltaTime * BaseEnemy.HIT_FLASH_SPEED_FACTOR : deltaTime);
     }
 
     destroy(fromScene?: boolean) {
@@ -85,5 +69,34 @@ export default abstract class BaseEnemy extends Entity {
         this._shootTimer?.remove();
 
         super.destroy(fromScene);
+    }
+
+    private get isDead(): boolean {
+        return this.getComponent(Health)?.current === 0;
+    }
+
+    // Enemies are recycled, not destroyed, once they left the screen by the bottom
+    private get isBelowScreen(): boolean {
+        return this.y > this.scene.cameras.main.height + this.displayHeight;
+    }
+
+    private onHealthChanged() {
+        this._isHitFlashing = true;
+        this.setTintFill(BaseEnemy.HIT_FLASH_COLOR);
+
+        if (this.isDead) {
+            this.disableBody();
+            this.scene.game.events.emit(GameConstants.Events.ENEMY_KILLED_EVENT, this);
+        }
+
+        this.scene.time.delayedCall(BaseEnemy.HIT_FLASH_DURATION, this.onHitFlashEnded, [], this);
+    }
+
+    private onHitFlashEnded() {
+        this._isHitFlashing = false;
+        this.restoreAppearance();
+
+        if (this.isDead)
+            this.disable();
     }
 }
