@@ -6,10 +6,16 @@ import GameConstants from "../GameConstants.ts";
 export default abstract class BaseEnemy extends Entity {
     private _shootTimerConfig: Phaser.Types.Time.TimerEventConfig;
     private _shootTimer: Phaser.Time.TimerEvent;
+    private _isHitFlashing: boolean = false;
 
     protected abstract shoot(): void;
 
     protected abstract move(deltaTime: number): void;
+
+    // Called after the hit flash, for enemies that keep a tint of their own
+    protected restoreAppearance(): void {
+        this.clearTint();
+    }
 
     protected initHealth(maxHealth: number) {
         this.addComponent(new Health(maxHealth, this));
@@ -17,6 +23,7 @@ export default abstract class BaseEnemy extends Entity {
         // Listen once per enemy, not on every enable(): pooled enemies are reused many times
         const health = this.getComponent(Health);
         health?.on(Health.CHANGE_EVENT, () => {
+            this._isHitFlashing = true;
             this.setTintFill(0xffffff);
 
             if (health?.current == 0)
@@ -26,7 +33,8 @@ export default abstract class BaseEnemy extends Entity {
             }
 
             this.scene.time.delayedCall(50, () => {
-                this.clearTint();
+                this._isHitFlashing = false;
+                this.restoreAppearance();
 
                 if (health?.current == 0)
                 {
@@ -69,6 +77,13 @@ export default abstract class BaseEnemy extends Entity {
         }
 
         // Slow down while the hit feedback is displayed
-        this.move(this.isTinted ? deltaTime * 0.5 : deltaTime);
+        this.move(this._isHitFlashing ? deltaTime * 0.5 : deltaTime);
+    }
+
+    destroy(fromScene?: boolean) {
+        // The timer belongs to the scene clock: remove it, or it would keep calling a destroyed enemy
+        this._shootTimer?.remove();
+
+        super.destroy(fromScene);
     }
 }
