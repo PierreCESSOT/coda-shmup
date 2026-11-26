@@ -1,0 +1,182 @@
+{
+  "dropChance": {
+    "min": 0.1,
+    "max": 0.2
+  },
+  "fallSpeed": 0.18,
+  "powerUps": [
+    {
+      "id": "fire",
+      "name": "SUPER DAMAGE",
+      "texture": "powerupDamage",
+      "color": "#ff5050",
+      "duration": {
+        "min": 10,
+        "max": 20
+      },
+      "damageMultiplier": 3,
+      "weapon": {
+        "fireRate": 0.2,
+        "sound": "sfx_laser2",
+        "bullet": {
+          "width": 140,
+          "height": 10,
+          "color": "#ff5050",
+          "speed": 2200,
+          "damage": 1,
+          "bossDamageMultiplier": 0.4
+        }
+      },
+      "levels": [
+        {
+          "name": "SUPER DAMAGE II",
+          "damageMultiplier": 5
+        },
+        {
+          "name": "SUPER DAMAGE III",
+          "shockwave": {
+            "speed": 1.8,
+            "maxRadius": 2400,
+            "bossDamage": 25,
+            "color": "#ff7a00"
+          }
+        }
+      ]
+    },
+    {
+      "id": "shield",
+      "name": "OVERSHIELD",
+      "texture": "powerupShield",
+      "color": "#4de8ff",
+      "duration": {
+        "min": 10,
+        "max": 20
+      },
+      "shield": 50,
+      "levels": [
+        {
+          "name": "OVERSHIELD II",
+          "extraDuration": 10
+        },
+        {
+          "name": "OVERSHIELD III",
+          "ram": true
+        }
+      ]
+    },
+    {
+      "id": "speed",
+      "name": "SPEED x2",
+      "texture": "powerupSpeed",
+      "color": "#ffd93c",
+      "duration": {
+        "min": 10,
+        "max": 20
+      },
+      "speedMultiplier": 2,
+      "levels": [
+        {
+          "name": "SPEED x2 II",
+          "spread": {
+            "count": 3,
+            "angle": 20
+          }
+        },
+        {
+          "name": "SPEED x2 III",
+          "spread": {
+            "count": 5,
+            "angle": 50
+          },
+          "piercing": true
+        }
+      ],
+      "fireRateMultiplier": 0.5
+    }
+  ],
+  "comboPartBonus": 0.25,
+  "combos": [
+    {
+      "id": "inferno",
+      "parts": [
+        "fire",
+        "shield"
+      ],
+      "name": "INFERNO",
+      "color": "#ff7a00",
+      "duration": {
+        "min": 12,
+        "max": 18
+      },
+      "damageMultiplier": 3,
+      "weapon": {
+        "fireRate": 0.2,
+        "sound": "sfx_laser2",
+        "bullet": {
+          "width": 140,
+          "height": 10,
+          "color": "#ff7a00",
+          "speed": 2200,
+          "damage": 1,
+          "bossDamageMultiplier": 1
+        }
+      },
+      "shield": 50,
+      "shockwave": {
+        "speed": 1.8,
+        "maxRadius": 2400,
+        "bossDamage": 25,
+        "color": "#ff7a00"
+      }
+    },
+    {
+      "id": "thunderfire",
+      "parts": [
+        "fire",
+        "speed"
+      ],
+      "name": "THUNDERFIRE",
+      "color": "#ffb347",
+      "duration": {
+        "min": 12,
+        "max": 18
+      },
+      "damageMultiplier": 3,
+      "weapon": {
+        "fireRate": 0.2,
+        "sound": "sfx_laser2",
+        "bullet": {
+          "width": 140,
+          "height": 10,
+          "color": "#ffb347",
+          "speed": 2200,
+          "damage": 1,
+          "bossDamageMultiplier": 0.4
+        }
+      },
+      "fireRateMultiplier": 0.5,
+      "spread": {
+        "count": 3,
+        "angle": 20
+      },
+      "piercing": true
+    },
+    {
+      "id": "comet",
+      "parts": [
+        "shield",
+        "speed"
+      ],
+      "name": "COMET",
+      "color": "#7affd9",
+      "duration": {
+        "min": 12,
+        "max": 18
+      },
+      "speedMultiplier": 2,
+      "fireRateMultiplier": 0.5,
+      "shield": 75,
+      "ram": true
+    }
+  ]
+}
