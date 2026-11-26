@@ -2,7 +2,7 @@ import {GameObjects, Geom, Plugins, Physics, Scene, Scenes} from "phaser";
 import Health from "../components/Health.ts";
 import ChargeLaser from "../components/ChargeLaser.ts";
 import Boss from "../entities/Boss.ts";
-import type {BossesData} from "../gameData/BossesData.ts";
+import type {BossData, BossesData, BossSummonData} from "../gameData/BossesData.ts";
 import type {PlayerData} from "../gameData/PlayerData.ts";
 import Bullet from "../entities/Bullet.ts";
 import BaseEnemy from "../entities/BaseEnemy.ts";
@@ -36,6 +36,8 @@ export default class EntityManager extends Plugins.ScenePlugin {
     private _bossesData: BossesData;
     private _currentBoss: Boss | undefined;
     private _bossCount: number = 0;
+    private _regularBossCount: number = 0;
+    private _ultraBossCount: number = 0;
     private _nextBossScore: number = 0;
     private _enemyBullets: Physics.Arcade.Group;
 
@@ -121,6 +123,8 @@ export default class EntityManager extends Plugins.ScenePlugin {
         // Scene plugins survive a scene restart: reset the boss progression
         this._currentBoss = undefined;
         this._bossCount = 0;
+        this._regularBossCount = 0;
+        this._ultraBossCount = 0;
         this._nextBossScore = this._bossesData.scoreInterval;
 
         this._player.getComponent(ChargeLaser)?.on(ChargeLaser.FIRE_EVENT, this.onLaserFired, this);
@@ -140,14 +144,19 @@ export default class EntityManager extends Plugins.ScenePlugin {
 
     private spawnBoss() {
         const bossesData: BossesData = this._bossesData;
-        const bossData = bossesData.bosses[this._bossCount % bossesData.bosses.length];
 
-        // Infinite run: bosses loop, with more health each cycle
-        const cycle: number = Math.floor(this._bossCount / bossesData.bosses.length);
+        // Every Nth boss is an ultra boss, each list loops on its own
+        const isUltra: boolean = (this._bossCount + 1) % bossesData.ultraEvery === 0;
+        const bossData: BossData = isUltra
+            ? bossesData.ultraBosses[this._ultraBossCount++ % bossesData.ultraBosses.length]
+            : bossesData.bosses[this._regularBossCount++ % bossesData.bosses.length];
+
+        // Infinite run: more health each time a full cycle (ending with an ultra boss) is over
+        const cycle: number = Math.floor(this._bossCount / bossesData.ultraEvery);
         const health: number = Math.round(bossData.health * (1 + bossesData.healthGrowthPerCycle * cycle));
 
         const boss = new Boss(this.scene!, 0, 0, 'sprites', bossData.texture);
-        boss.init(this._enemyBullets, bossData, health, bossesData.finisher.healthThreshold, this._player);
+        boss.init(this._enemyBullets, bossData, health, bossesData.finisher.healthThreshold, this._player, isUltra);
         this._bosses.add(boss);
         boss.enable(this.scene!.cameras.main.centerX, 0);
         this._currentBoss = boss;
@@ -156,6 +165,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
             this._player.getComponent(ChargeLaser)?.arm();
             this.game!.events.emit(GameConstants.Events.BOSS_FINISHER_READY_EVENT, boss);
         });
+        boss.on(Boss.SUMMON_EVENT, this.onBossSummon, this);
         boss.getComponent(Health)?.once(Health.DEATH_EVENT, () => this.onBossKilled(boss));
 
         this.game!.events.emit(GameConstants.Events.BOSS_SPAWNED_EVENT, boss);
@@ -175,6 +185,19 @@ export default class EntityManager extends Plugins.ScenePlugin {
 
         // Bosses are not pooled: destroy it once its death feedback is over
         this.scene!.time.delayedCall(500, () => boss.destroy());
+    }
+
+    private onBossSummon(boss: Boss, summon: BossSummonData) {
+        const enemies: Physics.Arcade.Group = summon.enemy === 'ufo' ? this._enemies : this._sineEnemies;
+        const camera = this.scene!.cameras.main;
+
+        // Spread the summoned enemies on both sides of the boss
+        const spacing: number = 160;
+        for (let i: number = 0; i < summon.count; i++) {
+            const offsetX: number = (i - (summon.count - 1) / 2) * spacing;
+            const x: number = Phaser.Math.Clamp(boss.x + offsetX, 64, camera.width - 64);
+            this.spawnEnemyAt(enemies, x, boss.y + boss.displayHeight / 2);
+        }
     }
 
     private onLaserFired(beam: Geom.Line) {
@@ -247,7 +270,18 @@ export default class EntityManager extends Plugins.ScenePlugin {
         // If the margin is too large for the screen, spawn in the middle
         const camera = this.scene!.cameras.main;
         const x: number = margin * 2 < camera.width ? Phaser.Math.Between(margin, camera.width - margin) : camera.centerX;
-        enemy.enable(x, 0);
+        this.enableEnemy(enemy, x, 0);
+    }
+
+    // Spawns an enemy at a given position, even during a boss fight
+    private spawnEnemyAt(enemies: Physics.Arcade.Group, x: number, y: number) {
+        const enemy = enemies.get() as BaseEnemy;
+        if (enemy)
+            this.enableEnemy(enemy, x, y);
+    }
+
+    private enableEnemy(enemy: BaseEnemy, x: number, y: number) {
+        enemy.enable(x, y);
 
         this.game!.events.emit(GameConstants.Events.ENEMY_SPAWNED_EVENT, enemy);
 
