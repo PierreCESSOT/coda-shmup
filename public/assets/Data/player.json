@@ -1,7 +1,8 @@
 {
   "health": 100,
   "contactDamage": 20,
-  "heal": {
+  "maxHealthCap": 200,
+  "healthBonus": {
     "streak": {
       "min": 5,
       "max": 10

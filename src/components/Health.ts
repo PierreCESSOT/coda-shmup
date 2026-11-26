@@ -6,9 +6,10 @@ export default class Health extends Phaser.Events.EventEmitter implements ICompo
 
     public static readonly CHANGE_EVENT: string = 'change';
     public static readonly DEATH_EVENT: string = 'death';
+    public static readonly MAX_CHANGE_EVENT: string = 'maxChange';
 
     private _current: number;
-    private readonly _max: number;
+    private _max: number;
     private readonly _entity: Entity;
 
     public get current(): number {
@@ -37,10 +38,15 @@ export default class Health extends Phaser.Events.EventEmitter implements ICompo
         this.adjust(amount, emitEvents);
     }
 
-    // Heals a random percentage of the max health, between min and max (included)
-    public healRandomPercent(minPercent: number, maxPercent: number): void {
-        const percent: number = Phaser.Math.Between(minPercent, maxPercent);
-        this.heal(Math.round(this._max * percent / 100));
+    // Raises the max health, without going past the cap
+    public increaseMax(amount: number, cap: number): void {
+        if (!this.enabled || amount <= 0) return;
+
+        const prev: number = this._max;
+        this._max = Math.max(prev, Math.min(prev + amount, cap));
+
+        if (this._max !== prev)
+            this.emit(Health.MAX_CHANGE_EVENT, this._max, prev);
     }
 
     private adjust(delta: number, emitEvents: boolean = true): void {

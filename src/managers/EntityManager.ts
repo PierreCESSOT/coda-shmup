@@ -180,11 +180,9 @@ export default class EntityManager extends Plugins.ScenePlugin {
 
         this._player.getComponent(ChargeLaser)?.disarm();
 
-        // Reward: heal the player, more after an ultra boss
-        const healData = (this.scene!.cache.json.get('player') as PlayerData).heal;
-        const healRange = boss.isUltra ? healData.ultraBoss : healData.boss;
-        if (this._player.active)
-            this._player.getComponent(Health)?.healRandomPercent(healRange.min, healRange.max);
+        // Reward: more max health, even more after an ultra boss
+        const bonusData = (this.scene!.cache.json.get('player') as PlayerData).healthBonus;
+        this._player.applyHealthBonus(boss.isUltra ? bonusData.ultraBoss : bonusData.boss);
 
         this.game!.events.emit(GameConstants.Events.BOSS_KILLED_EVENT, boss);
 

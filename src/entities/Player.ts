@@ -4,7 +4,7 @@ import {ShipColorData} from "../gameData/ShipColorData.ts";
 import type {BulletData} from "../gameData/BulletData.ts";
 import {toBulletData} from "../gameData/BulletConfigData.ts";
 import {StreakData} from "../gameData/StreakData.ts";
-import {PlayerData} from "../gameData/PlayerData.ts";
+import {PercentRangeData, PlayerData} from "../gameData/PlayerData.ts";
 import {BossesData} from "../gameData/BossesData.ts";
 import Entity from './Entity.ts';
 import Health from "../components/Health.ts";
@@ -112,13 +112,24 @@ export default class Player extends Entity {
         this.getComponent(Movement)?.setSpeed(this._playerShipData.movementSpeed);
     }
 
+    // Raises the max health by a random percentage of the starting health, and heals the same amount
+    public applyHealthBonus(range: PercentRangeData) {
+        const health = this.getComponent(Health);
+        if (!health || !this.active)
+            return;
+
+        const percent: number = Phaser.Math.Between(range.min, range.max);
+        const amount: number = Math.round(this._playerData.health * percent / 100);
+        health.increaseMax(amount, this._playerData.maxHealthCap);
+        health.heal(amount);
+    }
+
     private onEnemyKilled() {
         this.getComponent(KillStreak)?.addKill();
     }
 
     private onStreakStarted() {
-        const healData = this._playerData.heal.streak;
-        this.getComponent(Health)?.healRandomPercent(healData.min, healData.max);
+        this.applyHealthBonus(this._playerData.healthBonus.streak);
 
         const laserData = this._streakData.laser;
         this.getComponent(Weapon)?.setBulletData(toBulletData(laserData.bullet));

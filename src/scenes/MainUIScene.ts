@@ -95,7 +95,11 @@ export default class MainUIScene extends Scene {
             health.on(Health.CHANGE_EVENT, (current: number, previous: number) => {
                 this.updatePlayerHealth(health);
                 if (current > previous)
-                    this.showHealPopup(current - previous);
+                    this.showHealthPopup("+" + Math.round(current - previous) + " HP", '#5cff7a', 0);
+            }, this);
+            health.on(Health.MAX_CHANGE_EVENT, (max: number, previous: number) => {
+                this.updatePlayerHealth(health);
+                this.showHealthPopup("MAX HP +" + Math.round(max - previous), '#ffd93c', 56);
             }, this);
         }
 
@@ -116,9 +120,9 @@ export default class MainUIScene extends Scene {
         this._playerHealthText.setText(Math.ceil(health.current) + " / " + health.max);
     }
 
-    private showHealPopup(amount: number) {
-        const popup = this.add.text(this._playerHealthText.x, this._playerHealthText.y + 48, "+" + Math.round(amount) + " HP",
-            {fontSize: '44px', color: '#5cff7a', fontFamily: 'future', stroke: '#000', strokeThickness: 6})
+    private showHealthPopup(text: string, color: string, offsetY: number) {
+        const popup = this.add.text(this._playerHealthText.x, this._playerHealthText.y + 48 + offsetY, text,
+            {fontSize: '44px', color: color, fontFamily: 'future', stroke: '#000', strokeThickness: 6})
             .setOrigin(0.5);
 
         this.tweens.add({
