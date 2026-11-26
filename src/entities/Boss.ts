@@ -107,7 +107,7 @@ export default class Boss extends BaseEnemy {
             if (this.y >= this._data.entry.targetY) {
                 this.y = this._data.entry.targetY;
                 this._hasEntered = true;
-                this.getComponent(SineMovement)?.reset(this.x);
+                this.getComponent(SineMovement)?.reset(this);
             }
             return;
         }

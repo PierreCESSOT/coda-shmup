@@ -1,9 +1,9 @@
 import Entity from "../entities/Entity.ts";
-import IComponent from "./IComponent.ts";
+import IPatternMovement from "./IPatternMovement.ts";
 import {SineMovementData} from "../gameData/SineMovementData.ts";
 
 // Moves an entity down while it oscillates horizontally around its spawn point
-export default class SineMovement implements IComponent {
+export default class SineMovement implements IPatternMovement {
     public enabled: boolean = true;
 
     private readonly _data: SineMovementData;
@@ -15,8 +15,8 @@ export default class SineMovement implements IComponent {
     }
 
     // Must be called on spawn, as pooled entities are reused
-    public reset(originX: number) {
-        this._originX = originX;
+    public reset(entity: Entity) {
+        this._originX = entity.x;
         this._elapsedTime = 0;
     }
 
