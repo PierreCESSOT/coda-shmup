@@ -1,0 +1,11 @@
+[
+  { "name": "ORIGINAL", "color": null },
+  { "name": "BLANC", "color": "#ffffff" },
+  { "name": "ROUGE", "color": "#ff5050" },
+  { "name": "ORANGE", "color": "#ff9a3c" },
+  { "name": "JAUNE", "color": "#ffd93c" },
+  { "name": "VERT", "color": "#5cff7a" },
+  { "name": "CYAN", "color": "#4de8ff" },
+  { "name": "VIOLET", "color": "#b36bff" },
+  { "name": "ROSE", "color": "#ff6bd0" }
+]

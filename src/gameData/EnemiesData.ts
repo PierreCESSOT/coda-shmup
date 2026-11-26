@@ -1,14 +1,15 @@
-import {MovementData} from "./MovementData.ts";
+import {EnemySpawnData} from "./EnemySpawnData.ts";
+import {SineMovementData} from "./SineMovementData.ts";
 import {SpreadShotData} from "./SpreadShotData.ts";
 
 export type EnemiesData = {
-    [key: string]: EnemyData
+    sineEnemy: SineEnemyData;
 }
 
-export type EnemyData = {
+export type SineEnemyData = {
     texture: string;
-    spawnDelay: number;
-    maxActive: number;
-    movement: MovementData;
+    health: number;
+    spawn: EnemySpawnData;
+    movement: SineMovementData;
     spreadShot: SpreadShotData;
 }
