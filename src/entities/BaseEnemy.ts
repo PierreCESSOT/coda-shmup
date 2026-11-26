@@ -56,7 +56,8 @@ export default abstract class BaseEnemy extends Entity {
 
     public enable(x: number, y: number) {
         this.enableBody(true, x, y - this.displayHeight, true, true);
-        this._shootTimer.reset(this._shootTimerConfig);
+        // Some enemies schedule their attacks themselves and have no shoot timer
+        this._shootTimer?.reset(this._shootTimerConfig);
 
         // Restore health, in case the enemy is reused from the pool, without emitting events
         const health = this.getComponent(Health);
@@ -65,7 +66,8 @@ export default abstract class BaseEnemy extends Entity {
 
     public disable() {
         this.disableBody(true, true);
-        this._shootTimer.paused = true;
+        if (this._shootTimer)
+            this._shootTimer.paused = true;
     }
 
     preUpdate(timeSinceLaunch: number, deltaTime: number) {
@@ -83,6 +85,7 @@ export default abstract class BaseEnemy extends Entity {
     destroy(fromScene?: boolean) {
         // The timer belongs to the scene clock: remove it, or it would keep calling a destroyed enemy
         this._shootTimer?.remove();
+        this.scene?.tweens.killTweensOf(this);
 
         super.destroy(fromScene);
     }
