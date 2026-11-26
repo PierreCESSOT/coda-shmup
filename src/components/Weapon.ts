@@ -8,7 +8,7 @@ export default class Weapon implements IComponent {
     public enabled: boolean = true;
 
     private readonly _bullets: Physics.Arcade.Group;
-    private readonly _bulletData: BulletData;
+    private _bulletData: BulletData;
 
     constructor(bullets: Physics.Arcade.Group, bulletData: BulletData) {
         if (!bullets) {
@@ -16,6 +16,11 @@ export default class Weapon implements IComponent {
         }
 
         this._bullets = bullets;
+        this._bulletData = bulletData;
+    }
+
+    // Changes the kind of bullets fired, e.g. to switch to a power-up
+    public setBulletData(bulletData: BulletData) {
         this._bulletData = bulletData;
     }
 
