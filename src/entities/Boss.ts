@@ -7,6 +7,14 @@ import SpreadWeapon from "../components/SpreadWeapon.ts";
 import {toBulletData} from "../gameData/BulletConfigData.ts";
 import type {BossAttackData, BossData} from "../gameData/BossesData.ts";
 
+export type BossSetup = {
+    bulletsGroup: Phaser.Physics.Arcade.Group;
+    data: BossData;
+    health: number;
+    finisherThreshold: number;   // Health ratio under which only finish() can kill the boss
+    target: Entity;              // What the aimed attacks shoot at
+}
+
 // Enters the screen, then sways and cycles through its attacks.
 // Under a health threshold, bullets no longer hurt it: only finish() can kill it
 export default class Boss extends BaseEnemy {
@@ -27,8 +35,9 @@ export default class Boss extends BaseEnemy {
         return this._isFinisherReady;
     }
 
-    public init(bulletsGroup: Phaser.Physics.Arcade.Group, data: BossData, health: number,
-                finisherThreshold: number, target: Entity) {
+    public init(setup: BossSetup) {
+        const {bulletsGroup, data, health, finisherThreshold, target} = setup;
+
         this._data = data;
         this._target = target;
 

@@ -146,7 +146,13 @@ export default class EntityManager extends Plugins.ScenePlugin {
         const health: number = Math.round(bossData.health * (1 + bossesData.healthGrowthPerCycle * cycle));
 
         const boss = new Boss(this.scene!, 0, 0, 'sprites', bossData.texture);
-        boss.init(this._enemyBullets, bossData, health, bossesData.finisher.healthThreshold, this._player);
+        boss.init({
+            bulletsGroup: this._enemyBullets,
+            data: bossData,
+            health: health,
+            finisherThreshold: bossesData.finisher.healthThreshold,
+            target: this._player
+        });
         this._bosses.add(boss);
         boss.enable(this.scene!.cameras.main.centerX, 0);
         this._currentBoss = boss;
