@@ -1,5 +1,6 @@
 import Entity from './Entity.ts';
 import Health from "../components/Health.ts";
+import GameConstants from "../GameConstants.ts";
 
 // Shared logic of every enemy: hit feedback, pooling, shoot timer and off-screen recycling
 export default abstract class BaseEnemy extends Entity {
@@ -21,6 +22,7 @@ export default abstract class BaseEnemy extends Entity {
             if (health?.current == 0)
             {
                 this.disableBody();
+                this.scene.game.events.emit(GameConstants.Events.ENEMY_KILLED_EVENT, this);
             }
 
             this.scene.time.delayedCall(50, () => {
