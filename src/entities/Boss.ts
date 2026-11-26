@@ -4,6 +4,7 @@ import Entity from './Entity.ts';
 import Health from "../components/Health.ts";
 import SineMovement from "../components/SineMovement.ts";
 import SpreadWeapon from "../components/SpreadWeapon.ts";
+import GameConstants from "../GameConstants.ts";
 import {toBulletData} from "../gameData/BulletConfigData.ts";
 import type {BossAttackData, BossData} from "../gameData/BossesData.ts";
 
@@ -15,6 +16,11 @@ export type BossSetup = {
     target: Entity;              // What the aimed attacks shoot at
 }
 
+type BossAttack = {
+    data: BossAttackData;
+    weapon: SpreadWeapon;
+}
+
 // Enters the screen, then sways and cycles through its attacks.
 // Under a health threshold, bullets no longer hurt it: only finish() can kill it
 export default class Boss extends BaseEnemy {
@@ -22,7 +28,7 @@ export default class Boss extends BaseEnemy {
 
     private _data: BossData;
     private _target: Entity;
-    private _attacks: { data: BossAttackData, weapon: SpreadWeapon }[] = [];
+    private _attacks: BossAttack[] = [];
     private _attackIndex: number = 0;
     private _hasEntered: boolean = false;
     private _isFinisherReady: boolean = false;
@@ -36,40 +42,22 @@ export default class Boss extends BaseEnemy {
     }
 
     public init(setup: BossSetup) {
-        const {bulletsGroup, data, health, finisherThreshold, target} = setup;
+        this._data = setup.data;
+        this._target = setup.target;
 
-        this._data = data;
-        this._target = target;
-
-        this.setTexture('sprites', data.texture);
+        this.setTexture(GameConstants.ATLAS_KEY, setup.data.texture);
         this.restoreAppearance();
 
-        this.initHealth(health);
-        this.addComponent(new SineMovement(data.movement));
-        for (const attackData of data.attacks) {
-            const weapon = new SpreadWeapon(bulletsGroup, toBulletData(attackData.bullet), attackData);
-            this._attacks.push({data: attackData, weapon: weapon});
-            this.addComponent(weapon);
-        }
+        this.initHealth(setup.health);
+        this.addComponent(new SineMovement(setup.data.movement));
+        this.initAttacks(setup.bulletsGroup, setup.data.attacks);
+        this.watchFinisherThreshold(setup.finisherThreshold);
 
-        const bossHealth = this.getComponent(Health)!;
-        bossHealth.on(Health.CHANGE_EVENT, (current: number) => {
-            if (!this._isFinisherReady && current > 0 && current <= bossHealth.max * finisherThreshold) {
-                this._isFinisherReady = true;
-                // Bullets are now ignored: the boss has to be finished with the laser
-                bossHealth.enabled = false;
-                this.emit(Boss.FINISHER_READY_EVENT, this);
-            }
-        });
+        this.angle = BaseEnemy.FACING_DOWN_ANGLE;
+        this.setScale(setup.data.scale);
+        this.fitBodyToSprite();
 
-        this.angle = 90;
-        this.setScale(data.scale);
-
-        // Body circle in texture space, centered: arcade bodies follow the sprite scale
-        const radius: number = Math.min(this.width, this.height) / 2;
-        this.arcadeBody.setCircle(radius, this.width / 2 - radius, this.height / 2 - radius);
-
-        this.initShootTimer(data.attackDelay);
+        this.initShootTimer(setup.data.attackDelay);
     }
 
     public enable(x: number, y: number) {
@@ -102,25 +90,63 @@ export default class Boss extends BaseEnemy {
         const attack = this._attacks[this._attackIndex];
         this._attackIndex = (this._attackIndex + 1) % this._attacks.length;
 
-        const direction: number = attack.data.aimAtPlayer && this._target.active
-            ? Phaser.Math.Angle.Between(this.x, this.y, this._target.x, this._target.y)
-            : this.rotation;
-        attack.weapon.shootAt(this, direction);
-        this.scene.sound.play('sfx_laser2');
+        attack.weapon.shootAt(this, this.getAttackDirection(attack.data));
+        this.scene.sound.play(GameConstants.AudioKeys.ENEMY_SHOOT);
     }
 
     protected move(deltaTime: number) {
-        if (!this._hasEntered) {
-            this.y += this._data.entry.speed * deltaTime;
-
-            if (this.y >= this._data.entry.targetY) {
-                this.y = this._data.entry.targetY;
-                this._hasEntered = true;
-                this.getComponent(SineMovement)?.reset(this.x);
-            }
+        if (this._hasEntered) {
+            this.getComponent(SineMovement)?.move(this, deltaTime);
             return;
         }
 
-        this.getComponent(SineMovement)?.move(this, deltaTime);
+        this.moveIntoPosition(deltaTime);
+    }
+
+    private initAttacks(bulletsGroup: Phaser.Physics.Arcade.Group, attacksData: BossAttackData[]) {
+        for (const attackData of attacksData) {
+            const weapon = new SpreadWeapon(bulletsGroup, toBulletData(attackData.bullet), attackData);
+            this._attacks.push({data: attackData, weapon});
+            this.addComponent(weapon);
+        }
+    }
+
+    private watchFinisherThreshold(finisherThreshold: number) {
+        const health = this.getComponent(Health)!;
+        health.on(Health.CHANGE_EVENT, (current: number) => {
+            if (this._isFinisherReady || current <= 0 || current > health.max * finisherThreshold)
+                return;
+
+            this._isFinisherReady = true;
+            // Bullets are now ignored: the boss has to be finished with the laser
+            health.enabled = false;
+            this.emit(Boss.FINISHER_READY_EVENT, this);
+        });
+    }
+
+    // Body circle in texture space, centered: arcade bodies follow the sprite scale
+    private fitBodyToSprite() {
+        const radius: number = Math.min(this.width, this.height) / 2;
+        this.arcadeBody.setCircle(radius, this.width / 2 - radius, this.height / 2 - radius);
+    }
+
+    private getAttackDirection(attack: BossAttackData): number {
+        const shouldAimAtTarget: boolean = attack.aimAtPlayer && this._target.active;
+        if (!shouldAimAtTarget)
+            return this.rotation;
+
+        return Phaser.Math.Angle.Between(this.x, this.y, this._target.x, this._target.y);
+    }
+
+    private moveIntoPosition(deltaTime: number) {
+        const entry = this._data.entry;
+        this.y += entry.speed * deltaTime;
+
+        if (this.y < entry.targetY)
+            return;
+
+        this.y = entry.targetY;
+        this._hasEntered = true;
+        this.getComponent(SineMovement)?.reset(this.x);
     }
 }
