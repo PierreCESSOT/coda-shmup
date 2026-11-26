@@ -1,10 +1,13 @@
 import {Input, Scene} from "phaser";
 import {PlayerShipData, PlayerShipsData} from "../gameData/PlayerShipsData.ts";
+import {ShipColorData} from "../gameData/ShipColorData.ts";
 import type {BulletData} from "../gameData/BulletData.ts";
 import Entity from './Entity.ts';
 import Health from "../components/Health.ts";
 import Movement from "../components/Movement.ts";
 import Weapon from "../components/Weapon.ts";
+import ShipAppearance from "../utils/ShipAppearance.ts";
+import RegistryConstants from "../RegistryConstants.ts";
 
 export default class Player extends Entity {
     private readonly _bulletData: BulletData = {
@@ -39,7 +42,8 @@ export default class Player extends Entity {
 
         this.angle = -90;
 
-        this.selectPlayerShip(1);
+        // Ship chosen in the home menu
+        this.selectPlayerShip(this.scene.registry.get(RegistryConstants.Keys.PLAYER_SHIP_ID) ?? 1);
 
         this._rateOfFire = 0.5;
         this._lastShotTime = 0;
@@ -59,7 +63,9 @@ export default class Player extends Entity {
         const playerShipsData = this.scene.cache.json.get('playerShips') as PlayerShipsData;
         this._playerShipData = playerShipsData[playerShipDataId];
 
-        this.setTexture('sprites', this._playerShipData.texture);
+        const shipColors = this.scene.cache.json.get('shipColors') as ShipColorData[];
+        const colorIndex: number = this.scene.registry.get(RegistryConstants.Keys.PLAYER_SHIP_COLOR) ?? 0;
+        ShipAppearance.apply(this, this._playerShipData, shipColors[colorIndex] ?? shipColors[0]);
         const bodyData = this._playerShipData.body;
         this.arcadeBody.setCircle(bodyData.radius, bodyData.offsetX, bodyData.offsetY);
 

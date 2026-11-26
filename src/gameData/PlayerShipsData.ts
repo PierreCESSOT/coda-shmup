@@ -7,5 +7,6 @@ export type PlayerShipsData = {
 export type PlayerShipData = {
     movementSpeed: number;
     texture: string;
+    tintableTexture: string;   // Greyscale version of the texture, used when a color is chosen
     body: ShipBodyData;
 }
