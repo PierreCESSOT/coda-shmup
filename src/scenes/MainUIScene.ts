@@ -123,8 +123,9 @@ export default class MainUIScene extends Scene {
     }
 
     private onBossSpawned(boss: Boss) {
-        this._bossNameText.setText(boss.bossName);
-        this._bossHealthBar.setScale(1, 1).setFillStyle(0xff5050);
+        this._bossNameText.setText(boss.isUltra ? "ULTRA - " + boss.bossName : boss.bossName);
+        this._bossNameText.setColor(boss.isUltra ? '#ffd93c' : '#ffffff');
+        this._bossHealthBar.setScale(1, 1).setFillStyle(boss.isUltra ? 0xff9a3c : 0xff5050);
         this.setBossHudVisible(true);
 
         const health = boss.getComponent(Health);
