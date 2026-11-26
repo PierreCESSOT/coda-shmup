@@ -9,7 +9,8 @@
       "height": 10,
       "color": "#4de8ff",
       "speed": 2200,
-      "damage": 2
+      "damage": 2,
+      "bossDamageMultiplier": 0.25
     }
   }
 }

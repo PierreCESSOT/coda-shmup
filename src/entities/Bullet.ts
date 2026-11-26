@@ -4,9 +4,14 @@ export default class Bullet extends Phaser.GameObjects.Rectangle {
     private _arcadeBody: Phaser.Physics.Arcade.Body;
 
     private _damage: number = 0;
+    private _bossDamage: number = 0;
 
     public get damage(): number {
         return this._damage;
+    }
+
+    public get bossDamage(): number {
+        return this._bossDamage;
     }
 
     public init() {
@@ -29,6 +34,7 @@ export default class Bullet extends Phaser.GameObjects.Rectangle {
 
         this._arcadeBody.setVelocity(velocityX, velocityY);
         this._damage = data.damage;
+        this._bossDamage = data.damage * (data.bossDamageMultiplier ?? 1);
 
         // Rotate the bullet to face the direction it's moving
         this.setRotation(this._arcadeBody.velocity.angle());

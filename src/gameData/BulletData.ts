@@ -4,4 +4,5 @@ export type BulletData = {
     color: number;
     speed: number;
     damage: number;
+    bossDamageMultiplier?: number;  // Damage ratio against bosses (default 1)
 }

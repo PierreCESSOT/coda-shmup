@@ -8,6 +8,7 @@ export type BulletConfigData = {
     color: string;
     speed: number;
     damage: number;
+    bossDamageMultiplier?: number;  // Damage ratio against bosses (default 1)
 }
 
 export function toBulletData(config: BulletConfigData): BulletData {

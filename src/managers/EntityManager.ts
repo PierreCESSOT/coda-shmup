@@ -216,7 +216,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
         this.initEnemyGroupCollisions(this._enemies);
         this.initEnemyGroupCollisions(this._sineEnemies);
         // Bosses stay at the top of the screen: only bullets can reach them
-        this.initEnemyBulletCollisions(this._bosses);
+        this.initEnemyBulletCollisions(this._bosses, true);
 
         this.scene!.physics.add.overlap(this._player, this._enemyBullets, (player, bullet) => {
             (bullet as Bullet).disable();
@@ -244,7 +244,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
         });
     }
 
-    private initEnemyBulletCollisions(enemies: Physics.Arcade.Group) {
+    private initEnemyBulletCollisions(enemies: Physics.Arcade.Group, areBosses: boolean = false) {
         this.scene!.physics.add.overlap(this._playerBullets, enemies, (bullet, enemy) => {
             const health = (enemy as BaseEnemy).getComponent(Health);
             // No points while the enemy can't be hurt (boss waiting for the finisher)
@@ -252,7 +252,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
                 this.scene!.registry.inc(RegistryConstants.Keys.PLAYER_SCORE);
 
             (bullet as Bullet).disable();
-            health?.damage((bullet as Bullet).damage);
+            health?.damage(areBosses ? (bullet as Bullet).bossDamage : (bullet as Bullet).damage);
         });
     }
 
