@@ -43,14 +43,10 @@ export default class EntityManager extends Plugins.ScenePlugin {
 
     constructor(scene: Scene, pluginManager: Plugins.PluginManager) {
         super(scene, pluginManager, EntityManager.PLUGIN_KEY);
-
-        console.log("[EntityManager] Initialized");
     }
 
     destroy() {
         super.destroy();
-
-        console.log("[EntityManager] Destroyed");
     }
 
     public initAndSpawnPlayer(): Player {
@@ -59,8 +55,6 @@ export default class EntityManager extends Plugins.ScenePlugin {
 
         this._player = new Player(this.scene!, this.scene!.cameras.main.centerX, this.scene!.cameras.main.height - 128);
         this._player.init(this._playerBullets);
-
-        console.log("[EntityManager] Player spawned");
 
         this.game!.events.emit(GameConstants.Events.PLAYER_SPAWNED_EVENT, this._player);
 
@@ -89,8 +83,6 @@ export default class EntityManager extends Plugins.ScenePlugin {
 
         this.initSineEnemies();
         this.initBosses();
-
-        console.log("[EntityManager] Enemies initialized");
 
         return this._enemies;
     }
@@ -169,8 +161,6 @@ export default class EntityManager extends Plugins.ScenePlugin {
         boss.getComponent(Health)?.once(Health.DEATH_EVENT, () => this.onBossKilled(boss));
 
         this.game!.events.emit(GameConstants.Events.BOSS_SPAWNED_EVENT, boss);
-
-        console.log("[EntityManager] Boss spawned: " + bossData.name);
     }
 
     private onBossKilled(boss: Boss) {
@@ -185,8 +175,6 @@ export default class EntityManager extends Plugins.ScenePlugin {
         this._player.applyHealthBonus(boss.isUltra ? bonusData.ultraBoss : bonusData.boss);
 
         this.game!.events.emit(GameConstants.Events.BOSS_KILLED_EVENT, boss);
-
-        console.log("[EntityManager] Boss killed: " + boss.bossName);
 
         // Bosses are not pooled: destroy it once its death feedback is over
         this.scene!.time.delayedCall(500, () => boss.destroy());
@@ -229,8 +217,6 @@ export default class EntityManager extends Plugins.ScenePlugin {
 
             this.scene?.cameras.main.shake(100, 0.01);
         });
-
-        console.log("[EntityManager] Group collisions initialized");
     }
 
     private initEnemyGroupCollisions(enemies: Physics.Arcade.Group) {
@@ -289,7 +275,5 @@ export default class EntityManager extends Plugins.ScenePlugin {
         enemy.enable(x, y);
 
         this.game!.events.emit(GameConstants.Events.ENEMY_SPAWNED_EVENT, enemy);
-
-        console.log("[EntityManager] Enemy spawned");
     }
 }

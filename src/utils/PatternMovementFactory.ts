@@ -18,6 +18,8 @@ export default class PatternMovementFactory {
                 return new TeleportMovement(data);
             case 'dash':
                 return new DashMovement(data, target);
+            default:
+                throw new Error('Unsupported boss movement type');
         }
     }
 }

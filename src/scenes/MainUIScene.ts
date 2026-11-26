@@ -80,7 +80,6 @@ export default class MainUIScene extends Scene {
 
         this.scene.bringToTop();
 
-        console.log("MainUIScene created");
     }
 
     private onPlayerScoreChanged(_: any, value: number) {

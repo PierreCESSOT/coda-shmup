@@ -39,9 +39,6 @@ export default class Bullet extends Phaser.GameObjects.Rectangle {
         // Rotate the bullet to face the direction it's moving
         this.setRotation(this._arcadeBody.velocity.angle());
 
-        // Maths way
-        // this.setRotation(Math.atan2(velocityY, velocityX));
-
         // Arcade bodies can't rotate: fit the body to the rotated bullet bounds
         const cos: number = Math.abs(Math.cos(this.rotation));
         const sin: number = Math.abs(Math.sin(this.rotation));

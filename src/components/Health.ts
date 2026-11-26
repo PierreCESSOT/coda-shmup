@@ -76,9 +76,7 @@ export default class Health extends Phaser.Events.EventEmitter implements ICompo
                     alpha: { from: 1, to: 0 },
                     ease: 'Quad.easeIn',
                     duration: 1000
-                }).once('complete', function(_tween: any, _targets: any){
-                    explosion.destroy();
-                }, this);
+                }).once('complete', () => explosion.destroy());
 
                 this.emit(Health.DEATH_EVENT);
             }

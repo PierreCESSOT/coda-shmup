@@ -4,8 +4,8 @@ import GameConstants from "../GameConstants.ts";
 
 // Shared logic of every enemy: hit feedback, pooling, shoot timer and off-screen recycling
 export default abstract class BaseEnemy extends Entity {
-    private _shootTimerConfig: Phaser.Types.Time.TimerEventConfig;
-    private _shootTimer: Phaser.Time.TimerEvent;
+    private _shootTimerConfig?: Phaser.Types.Time.TimerEventConfig;
+    private _shootTimer?: Phaser.Time.TimerEvent;
     private _isHitFlashing: boolean = false;
 
     protected abstract shoot(): void;
@@ -22,12 +22,14 @@ export default abstract class BaseEnemy extends Entity {
 
         // Listen once per enemy, not on every enable(): pooled enemies are reused many times
         const health = this.getComponent(Health);
-        health?.on(Health.CHANGE_EVENT, () => {
+        if (!health)
+            return;
+
+        health.on(Health.CHANGE_EVENT, () => {
             this._isHitFlashing = true;
             this.setTintFill(0xffffff);
 
-            if (health?.current == 0)
-            {
+            if (health.current === 0) {
                 this.disableBody();
                 this.scene.game.events.emit(GameConstants.Events.ENEMY_KILLED_EVENT, this);
             }
@@ -36,8 +38,7 @@ export default abstract class BaseEnemy extends Entity {
                 this._isHitFlashing = false;
                 this.restoreAppearance();
 
-                if (health?.current == 0)
-                {
+                if (health.current === 0) {
                     this.disable();
                 }
             });
@@ -57,11 +58,13 @@ export default abstract class BaseEnemy extends Entity {
     public enable(x: number, y: number) {
         this.enableBody(true, x, y - this.displayHeight, true, true);
         // Some enemies schedule their attacks themselves and have no shoot timer
-        this._shootTimer?.reset(this._shootTimerConfig);
+        if (this._shootTimer && this._shootTimerConfig)
+            this._shootTimer.reset(this._shootTimerConfig);
 
         // Restore health, in case the enemy is reused from the pool, without emitting events
         const health = this.getComponent(Health);
-        health?.heal(health!.max, false);
+        if (health)
+            health.heal(health.max, false);
     }
 
     public disable() {

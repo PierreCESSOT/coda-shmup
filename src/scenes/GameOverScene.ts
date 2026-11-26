@@ -30,6 +30,5 @@ export default class GameOverScene extends Phaser.Scene {
             this.scene.start(GameConstants.SceneKeys.HOME);
         });
 
-        console.log("GameOverScene created");
     }
 }

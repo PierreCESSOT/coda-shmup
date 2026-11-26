@@ -44,13 +44,6 @@ export default class Weapon implements IComponent {
             bullet.enable(source.x + forward.x * source.arcadeBody.radius, source.y + forward.y * source.arcadeBody.radius,
                 bulletVelocity.x, bulletVelocity.y, this._bulletData);
 
-            // Maths way
-            // const forwardVectorX: number = Math.cos(direction);
-            // const forwardVectorY: number = Math.sin(direction);
-            // const bulletVelocityX: number = forwardVectorX * this._bulletData.speed;
-            // const bulletVelocityY: number = forwardVectorY * this._bulletData.speed;
-            // bullet.enable(source.x + forwardVectorX * source.arcadeBody.radius, source.y + forwardVectorY * source.arcadeBody.radius,
-            //     bulletVelocityX, bulletVelocityY, this._bulletData);
         }
     }
 }

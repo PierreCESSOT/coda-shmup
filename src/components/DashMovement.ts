@@ -44,12 +44,16 @@ export default class DashMovement implements IPatternMovement {
     }
 
     private dash(entity: Entity, deltaTime: number) {
-        const distance: number = this._dashTargetX! - entity.x;
+        const targetX = this._dashTargetX;
+        if (targetX === null)
+            return;
+
+        const distance: number = targetX - entity.x;
         const step: number = this._data.speed * deltaTime;
 
         if (Math.abs(distance) <= step) {
             // Arrived: sway around the new position until the next dash
-            entity.x = this._dashTargetX!;
+            entity.x = targetX;
             this.reset(entity);
             return;
         }
