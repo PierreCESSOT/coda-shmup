@@ -4,9 +4,11 @@ import {ShipColorData} from "../gameData/ShipColorData.ts";
 import type {BulletData} from "../gameData/BulletData.ts";
 import {toBulletData} from "../gameData/BulletConfigData.ts";
 import {StreakData} from "../gameData/StreakData.ts";
+import {BossesData} from "../gameData/BossesData.ts";
 import Entity from './Entity.ts';
 import Health from "../components/Health.ts";
 import KillStreak from "../components/KillStreak.ts";
+import ChargeLaser from "../components/ChargeLaser.ts";
 import Movement from "../components/Movement.ts";
 import Weapon from "../components/Weapon.ts";
 import ShipAppearance from "../utils/ShipAppearance.ts";
@@ -26,6 +28,7 @@ export default class Player extends Entity {
     };
 
     private readonly _cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
+    private _chargeLaserKey: Phaser.Input.Keyboard.Key;
     private _playerShipData: PlayerShipData;
     private _rateOfFire: number;
     private _shootSound: string;
@@ -37,6 +40,7 @@ export default class Player extends Entity {
 
         if (this.scene.input.keyboard) {
             this._cursorKeys = this.scene.input.keyboard.createCursorKeys();
+            this._chargeLaserKey = this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.F);
 
             this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.ONE).on('down', () => this.selectPlayerShip(1));
             this.scene.input.keyboard.addKey(Input.Keyboard.KeyCodes.TWO).on('down', () => this.selectPlayerShip(2));
@@ -48,6 +52,10 @@ export default class Player extends Entity {
         this.addComponent(new Health(3, this));
         this.addComponent(new Movement());
         this.addComponent(new Weapon(bulletsGroup, this._bulletData));
+
+        // Disabled until a boss can be finished
+        const bossesData = this.scene.cache.json.get('bosses') as BossesData;
+        this.addComponent(new ChargeLaser(this, bossesData.finisher));
 
         this._streakData = this.scene.cache.json.get('streak') as StreakData;
         const killStreak = new KillStreak(this._streakData.killsRequired);
@@ -139,6 +147,9 @@ export default class Player extends Entity {
         }
         // Stop player from going offscreen
         this.x = Phaser.Math.Clamp(this.x, this.displayWidth / 2, this.scene.cameras.main.width - this.displayWidth / 2);
+
+        // Hold F to charge the finisher laser
+        this.getComponent(ChargeLaser)?.update(this, this.active && (this._chargeLaserKey?.isDown ?? false), deltaTime);
 
         // Press space to shoot
         if (this._cursorKeys.space.isDown) {
