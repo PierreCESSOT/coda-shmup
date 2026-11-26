@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+<defs><radialGradient id="s" cx="45%" cy="35%" r="65%"><stop offset="0" stop-color="#ffb46b"/><stop offset="1" stop-color="#d1401f"/></radialGradient>
+<linearGradient id="c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a4c"/><stop offset="1" stop-color="#b02a12"/></linearGradient></defs>
+<g stroke="#231833" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="#b02a12">
+<path d="M48 70 L14 50 L8 62 L40 82 Z"/><path d="M44 92 L8 92 L8 104 L44 104 Z"/><path d="M48 114 L14 134 L20 144 L52 124 Z"/>
+<path d="M152 70 L186 50 L192 62 L160 82 Z"/><path d="M156 92 L192 92 L192 104 L156 104 Z"/><path d="M152 114 L186 134 L180 144 L148 124 Z"/>
+<path d="M62 132 L52 156 L62 160 L72 136 Z"/><path d="M138 132 L148 156 L138 160 L128 136 Z"/>
+</g>
+<g stroke="#231833" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="url(#c)">
+<path d="M60 136 C40 150 30 170 38 190 C52 196 70 188 74 172 C66 176 56 176 54 168 C60 160 70 158 76 150 Z"/>
+<path d="M140 136 C160 150 170 170 162 190 C148 196 130 188 126 172 C134 176 144 176 146 168 C140 160 130 158 124 150 Z"/>
+</g>
+<ellipse stroke="#231833" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" cx="100" cy="96" rx="62" ry="52" fill="url(#s)"/>
+<g fill="#ffd0a0" opacity="0.8"><circle cx="72" cy="72" r="6"/><circle cx="96" cy="62" r="4"/><circle cx="130" cy="76" r="5"/></g>
+<g stroke="#231833" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="#b02a12"><path d="M84 140 L80 156 L90 156 Z"/><path d="M116 140 L120 156 L110 156 Z"/></g>
+<g stroke="#231833" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="#fff"><circle cx="80" cy="152" r="10"/><circle cx="120" cy="152" r="10"/></g>
+<circle cx="80" cy="155" r="5" fill="#231833"/><circle cx="120" cy="155" r="5" fill="#231833"/>
+<path stroke="#231833" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="#231833" d="M84 126 Q100 136 116 126 Q100 130 84 126 Z"/>
+</svg>

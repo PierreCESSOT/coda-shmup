@@ -4,135 +4,240 @@
 			"image": "gameSprites.png",
 			"format": "RGBA8888",
 			"size": {
-				"w": 174,
+				"w": 976,
 				"h": 1022
 			},
 			"scale": 1,
 			"frames": [
 				{
-					"filename": "playerShip2_blue",
+					"filename": "bossDevourer",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 75,
-						"h": 112
+						"w": 260,
+						"h": 260
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 75,
-						"h": 112
+						"w": 260,
+						"h": 260
 					},
 					"frame": {
 						"x": 2,
 						"y": 2,
-						"w": 75,
-						"h": 112
+						"w": 260,
+						"h": 260
 					}
 				},
 				{
-					"filename": "playerShip2_grey",
+					"filename": "bossHydra",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 75,
-						"h": 112
+						"w": 260,
+						"h": 260
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 75,
-						"h": 112
+						"w": 260,
+						"h": 260
 					},
 					"frame": {
 						"x": 2,
-						"y": 118,
-						"w": 75,
-						"h": 112
+						"y": 266,
+						"w": 260,
+						"h": 260
 					}
 				},
 				{
-					"filename": "playerShip1_blue",
+					"filename": "bossCrab",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 75,
-						"h": 99
+						"w": 200,
+						"h": 200
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 75,
-						"h": 99
+						"w": 200,
+						"h": 200
 					},
 					"frame": {
 						"x": 2,
-						"y": 234,
-						"w": 75,
-						"h": 99
+						"y": 530,
+						"w": 200,
+						"h": 200
 					}
 				},
 				{
-					"filename": "playerShip1_grey",
+					"filename": "bossKraken",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 75,
-						"h": 99
+						"w": 200,
+						"h": 200
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 75,
-						"h": 99
+						"w": 200,
+						"h": 200
 					},
 					"frame": {
 						"x": 2,
-						"y": 337,
-						"w": 75,
-						"h": 99
+						"y": 734,
+						"w": 200,
+						"h": 200
 					}
 				},
 				{
-					"filename": "playerShip3_blue",
+					"filename": "playerLife1_blue",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 75,
-						"h": 98
+						"w": 33,
+						"h": 26
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 75,
-						"h": 98
+						"w": 33,
+						"h": 26
 					},
 					"frame": {
 						"x": 2,
-						"y": 440,
-						"w": 75,
-						"h": 98
+						"y": 938,
+						"w": 33,
+						"h": 26
 					}
 				},
 				{
-					"filename": "playerShip3_grey",
+					"filename": "star1",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 75,
-						"h": 98
+						"w": 25,
+						"h": 24
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 75,
-						"h": 98
+						"w": 25,
+						"h": 24
 					},
 					"frame": {
 						"x": 2,
-						"y": 542,
-						"w": 75,
-						"h": 98
+						"y": 968,
+						"w": 25,
+						"h": 24
+					}
+				},
+				{
+					"filename": "star2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 25,
+						"h": 24
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 25,
+						"h": 24
+					},
+					"frame": {
+						"x": 2,
+						"y": 996,
+						"w": 25,
+						"h": 24
+					}
+				},
+				{
+					"filename": "star3",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 24,
+						"h": 24
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 24,
+						"h": 24
+					},
+					"frame": {
+						"x": 31,
+						"y": 968,
+						"w": 24,
+						"h": 24
+					}
+				},
+				{
+					"filename": "bossReaper",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 200,
+						"h": 200
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 200,
+						"h": 200
+					},
+					"frame": {
+						"x": 206,
+						"y": 530,
+						"w": 200,
+						"h": 200
+					}
+				},
+				{
+					"filename": "bossSlime",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 200,
+						"h": 200
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 200,
+						"h": 200
+					},
+					"frame": {
+						"x": 206,
+						"y": 734,
+						"w": 200,
+						"h": 200
+					}
+				},
+				{
+					"filename": "bossWatcher",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 200,
+						"h": 200
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 200,
+						"h": 200
+					},
+					"frame": {
+						"x": 410,
+						"y": 734,
+						"w": 200,
+						"h": 200
 					}
 				},
 				{
@@ -150,8 +255,8 @@
 						"h": 91
 					},
 					"frame": {
-						"x": 2,
-						"y": 644,
+						"x": 614,
+						"y": 2,
 						"w": 91,
 						"h": 91
 					}
@@ -171,8 +276,8 @@
 						"h": 91
 					},
 					"frame": {
-						"x": 2,
-						"y": 739,
+						"x": 410,
+						"y": 2,
 						"w": 91,
 						"h": 91
 					}
@@ -192,8 +297,8 @@
 						"h": 91
 					},
 					"frame": {
-						"x": 2,
-						"y": 834,
+						"x": 505,
+						"y": 2,
 						"w": 91,
 						"h": 91
 					}
@@ -213,8 +318,8 @@
 						"h": 91
 					},
 					"frame": {
-						"x": 2,
-						"y": 929,
+						"x": 266,
+						"y": 2,
 						"w": 91,
 						"h": 91
 					}
@@ -234,7 +339,7 @@
 						"h": 91
 					},
 					"frame": {
-						"x": 81,
+						"x": 709,
 						"y": 2,
 						"w": 91,
 						"h": 91
@@ -255,94 +360,136 @@
 						"h": 91
 					},
 					"frame": {
-						"x": 81,
-						"y": 97,
+						"x": 804,
+						"y": 2,
 						"w": 91,
 						"h": 91
 					}
 				},
 				{
-					"filename": "playerLife1_blue",
+					"filename": "playerShip2_blue",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 33,
-						"h": 26
+						"w": 75,
+						"h": 112
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 33,
-						"h": 26
+						"w": 75,
+						"h": 112
 					},
 					"frame": {
-						"x": 81,
-						"y": 192,
-						"w": 33,
-						"h": 26
+						"x": 899,
+						"y": 2,
+						"w": 75,
+						"h": 112
 					}
 				},
 				{
-					"filename": "star1",
+					"filename": "playerShip2_grey",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 25,
-						"h": 24
+						"w": 75,
+						"h": 112
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 25,
-						"h": 24
+						"w": 75,
+						"h": 112
 					},
 					"frame": {
-						"x": 81,
-						"y": 222,
-						"w": 25,
-						"h": 24
+						"x": 899,
+						"y": 118,
+						"w": 75,
+						"h": 112
 					}
 				},
 				{
-					"filename": "star2",
+					"filename": "playerShip1_blue",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 25,
-						"h": 24
+						"w": 75,
+						"h": 99
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 25,
-						"h": 24
+						"w": 75,
+						"h": 99
 					},
 					"frame": {
-						"x": 81,
-						"y": 250,
-						"w": 25,
-						"h": 24
+						"x": 266,
+						"y": 234,
+						"w": 75,
+						"h": 99
 					}
 				},
 				{
-					"filename": "star3",
+					"filename": "playerShip1_grey",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 24,
-						"h": 24
+						"w": 75,
+						"h": 99
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 24,
-						"h": 24
+						"w": 75,
+						"h": 99
 					},
 					"frame": {
-						"x": 81,
-						"y": 278,
-						"w": 24,
-						"h": 24
+						"x": 266,
+						"y": 97,
+						"w": 75,
+						"h": 99
+					}
+				},
+				{
+					"filename": "playerShip3_blue",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 98
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 98
+					},
+					"frame": {
+						"x": 266,
+						"y": 337,
+						"w": 75,
+						"h": 98
+					}
+				},
+				{
+					"filename": "playerShip3_grey",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 98
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 98
+					},
+					"frame": {
+						"x": 345,
+						"y": 234,
+						"w": 75,
+						"h": 98
 					}
 				}
 			]
