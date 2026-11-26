@@ -92,7 +92,11 @@ export default class MainUIScene extends Scene {
         const health = player.getComponent(Health);
         if (health) {
             this.updatePlayerHealth(health);
-            health.on(Health.CHANGE_EVENT, () => this.updatePlayerHealth(health), this);
+            health.on(Health.CHANGE_EVENT, (current: number, previous: number) => {
+                this.updatePlayerHealth(health);
+                if (current > previous)
+                    this.showHealPopup(current - previous);
+            }, this);
         }
 
         const killStreak = player.getComponent(KillStreak);
@@ -110,6 +114,21 @@ export default class MainUIScene extends Scene {
         // Green, then yellow, then red as health goes down
         this._playerHealthBar.setFillStyle(ratio > 0.5 ? 0x5cff7a : ratio > 0.25 ? 0xffd93c : 0xff5050);
         this._playerHealthText.setText(Math.ceil(health.current) + " / " + health.max);
+    }
+
+    private showHealPopup(amount: number) {
+        const popup = this.add.text(this._playerHealthText.x, this._playerHealthText.y + 48, "+" + Math.round(amount) + " HP",
+            {fontSize: '44px', color: '#5cff7a', fontFamily: 'future', stroke: '#000', strokeThickness: 6})
+            .setOrigin(0.5);
+
+        this.tweens.add({
+            targets: popup,
+            y: popup.y + 60,
+            alpha: {from: 1, to: 0},
+            ease: 'Quad.easeOut',
+            duration: 1500,
+            onComplete: () => popup.destroy()
+        });
     }
 
     private setBossHudVisible(visible: boolean) {
