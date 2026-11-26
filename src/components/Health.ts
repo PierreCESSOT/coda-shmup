@@ -45,7 +45,7 @@ export default class Health extends Phaser.Events.EventEmitter implements ICompo
         this._current = Phaser.Math.Clamp(this._current + delta, 0, this._max);
 
         if (emitEvents && this._current !== prev) {
-            this.emit(Health.CHANGE_EVENT, this._current);
+            this.emit(Health.CHANGE_EVENT, this._current, prev);
 
             if (this._current <= 0 && prev > 0) {
                 const scene = this._entity.scene;

@@ -81,8 +81,11 @@ export default class Player extends Entity {
         this._shootSound = Player.DEFAULT_SHOOT_SOUND;
         this._lastShotTime = 0;
 
-        this.getComponent(Health)?.on(Health.CHANGE_EVENT, () => {
-            // The player can only lose health: any change breaks the streak
+        this.getComponent(Health)?.on(Health.CHANGE_EVENT, (current: number, previous: number) => {
+            // Healing is not a hit
+            if (current >= previous)
+                return;
+
             this.getComponent(KillStreak)?.reset();
 
             this.arcadeBody.setEnable(false);
