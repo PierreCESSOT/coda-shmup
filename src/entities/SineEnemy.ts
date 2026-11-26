@@ -1,6 +1,5 @@
-import {Display} from 'phaser';
-import type {BulletData} from '../gameData/BulletData.ts';
 import type {SineEnemyData} from '../gameData/EnemiesData.ts';
+import {toBulletData} from '../gameData/BulletConfigData.ts';
 import BaseEnemy from './BaseEnemy.ts';
 import SineMovement from "../components/SineMovement.ts";
 import SpreadWeapon from "../components/SpreadWeapon.ts";
@@ -10,14 +9,9 @@ export default class SineEnemy extends BaseEnemy {
     public init(bulletsGroup: Phaser.Physics.Arcade.Group, data: SineEnemyData) {
         this.setTexture('sprites', data.texture);
 
-        const bulletData: BulletData = {
-            ...data.spreadShot.bullet,
-            color: Display.Color.HexStringToColor(data.spreadShot.bullet.color).color
-        };
-
         this.initHealth(data.health);
         this.addComponent(new SineMovement(data.movement));
-        this.addComponent(new SpreadWeapon(bulletsGroup, bulletData, data.spreadShot));
+        this.addComponent(new SpreadWeapon(bulletsGroup, toBulletData(data.spreadShot.bullet), data.spreadShot));
 
         this.angle = 90;
 
