@@ -4,7 +4,7 @@
 			"image": "gameSprites.png",
 			"format": "RGBA8888",
 			"size": {
-				"w": 116,
+				"w": 174,
 				"h": 1022
 			},
 			"scale": 1,
@@ -136,7 +136,7 @@
 					}
 				},
 				{
-					"filename": "ufoGreen",
+					"filename": "ufoGold",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -157,7 +157,7 @@
 					}
 				},
 				{
-					"filename": "ufoRed-shoot0",
+					"filename": "ufoGreen",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -178,7 +178,7 @@
 					}
 				},
 				{
-					"filename": "ufoRed-shoot1",
+					"filename": "ufoPurple",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -199,7 +199,7 @@
 					}
 				},
 				{
-					"filename": "ufoRed",
+					"filename": "ufoRed-shoot0",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -220,6 +220,48 @@
 					}
 				},
 				{
+					"filename": "ufoRed-shoot1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 91
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					},
+					"frame": {
+						"x": 81,
+						"y": 2,
+						"w": 91,
+						"h": 91
+					}
+				},
+				{
+					"filename": "ufoRed",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 91
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					},
+					"frame": {
+						"x": 81,
+						"y": 97,
+						"w": 91,
+						"h": 91
+					}
+				},
+				{
 					"filename": "playerLife1_blue",
 					"rotated": false,
 					"trimmed": false,
@@ -235,7 +277,7 @@
 					},
 					"frame": {
 						"x": 81,
-						"y": 2,
+						"y": 192,
 						"w": 33,
 						"h": 26
 					}
@@ -256,7 +298,7 @@
 					},
 					"frame": {
 						"x": 81,
-						"y": 32,
+						"y": 222,
 						"w": 25,
 						"h": 24
 					}
@@ -277,7 +319,7 @@
 					},
 					"frame": {
 						"x": 81,
-						"y": 60,
+						"y": 250,
 						"w": 25,
 						"h": 24
 					}
@@ -298,7 +340,7 @@
 					},
 					"frame": {
 						"x": 81,
-						"y": 88,
+						"y": 278,
 						"w": 24,
 						"h": 24
 					}
