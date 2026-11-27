@@ -11,10 +11,12 @@ export default abstract class BaseEnemy extends Entity {
     private static readonly HIT_FLASH_SPEED_FACTOR: number = 0.5;
 
     private _shootTimerConfig: Phaser.Types.Time.TimerEventConfig;
-    private _shootTimer: Phaser.Time.TimerEvent;
+    private _shootTimer: Phaser.Time.TimerEvent | undefined;
     private _isHitFlashing: boolean = false;
 
-    protected abstract shoot(): void;
+    // Called by the shoot timer (see initShootTimer). By default, the enemy does not shoot
+    protected shoot(): void {
+    }
 
     protected abstract move(deltaTime: number): void;
 
@@ -42,7 +44,8 @@ export default abstract class BaseEnemy extends Entity {
 
     public enable(x: number, y: number) {
         this.enableBody(true, x, y - this.displayHeight, true, true);
-        this._shootTimer.reset(this._shootTimerConfig);
+        // Some enemies (the bosses) handle their attacks themselves and have no timer
+        this._shootTimer?.reset(this._shootTimerConfig);
 
         // Restore health, in case the enemy is reused from the pool, without emitting events
         this.getComponent(Health)?.restore();
@@ -50,7 +53,8 @@ export default abstract class BaseEnemy extends Entity {
 
     public disable() {
         this.disableBody(true, true);
-        this._shootTimer.paused = true;
+        if (this._shootTimer)
+            this._shootTimer.paused = true;
     }
 
     preUpdate(timeSinceLaunch: number, deltaTime: number) {

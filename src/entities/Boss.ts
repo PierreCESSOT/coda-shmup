@@ -3,10 +3,9 @@ import BaseEnemy from './BaseEnemy.ts';
 import Entity from './Entity.ts';
 import Health from "../components/Health.ts";
 import IPatternMovement from "../components/IPatternMovement.ts";
-import SpreadWeapon from "../components/SpreadWeapon.ts";
+import BossAttackSequence from "../components/BossAttackSequence.ts";
 import GameConstants from "../GameConstants.ts";
-import {toBulletData} from "../gameData/BulletConfigData.ts";
-import type {BossAttackData, BossData} from "../gameData/BossesData.ts";
+import type {BossData} from "../gameData/BossesData.ts";
 import PatternMovementFactory from "../utils/PatternMovementFactory.ts";
 
 export type BossSetup = {
@@ -17,11 +16,6 @@ export type BossSetup = {
     target: Entity;              // What the aimed attacks and the dash aim at
 }
 
-type BossAttack = {
-    data: BossAttackData;
-    weapon: SpreadWeapon;
-}
-
 // Enters the screen, then moves and attacks.
 // Under a health threshold, bullets no longer hurt it: only finish() can kill it
 export default class Boss extends BaseEnemy {
@@ -29,9 +23,7 @@ export default class Boss extends BaseEnemy {
 
     private _data: BossData;
     private _movement: IPatternMovement;
-    private _target: Entity;
-    private _attacks: BossAttack[] = [];
-    private _attackIndex: number = 0;
+    private _attackSequence: BossAttackSequence;
     private _hasEntered: boolean = false;
     private _isFinisherReady: boolean = false;
 
@@ -45,7 +37,6 @@ export default class Boss extends BaseEnemy {
 
     public init(setup: BossSetup) {
         this._data = setup.data;
-        this._target = setup.target;
 
         this.setTexture(GameConstants.ATLAS_KEY, setup.data.texture);
         this.restoreAppearance();
@@ -53,20 +44,20 @@ export default class Boss extends BaseEnemy {
         this.initHealth(setup.health);
         this._movement = PatternMovementFactory.create(setup.data.movement, setup.target);
         this.addComponent(this._movement);
-        this.initAttacks(setup.bulletsGroup, setup.data.attacks);
+        this._attackSequence = new BossAttackSequence(setup.bulletsGroup, setup.data.attacks, setup.target);
+        this.addComponent(this._attackSequence);
         this.watchFinisherThreshold(setup.finisherThreshold);
 
         this.angle = BaseEnemy.FACING_DOWN_ANGLE;
         this.setScale(setup.data.scale);
         this.fitBodyToSprite();
-
-        this.initShootTimer(setup.data.attackDelay);
     }
 
     public enable(x: number, y: number) {
         super.enable(x, y);
 
         this._hasEntered = false;
+        this._attackSequence.reset();
     }
 
     // Called when the charged laser hits the boss
@@ -79,22 +70,19 @@ export default class Boss extends BaseEnemy {
         health.damage(health.current);
     }
 
+    preUpdate(timeSinceLaunch: number, deltaTime: number) {
+        super.preUpdate(timeSinceLaunch, deltaTime);
+
+        // No attack while it enters the screen
+        if (this.active && this._hasEntered)
+            this._attackSequence.update(this, deltaTime);
+    }
+
     protected restoreAppearance() {
         if (this._data.tint)
             this.setTint(Display.Color.HexStringToColor(this._data.tint).color);
         else
             this.clearTint();
-    }
-
-    protected shoot() {
-        if (!this._hasEntered || this._attacks.length === 0)
-            return;
-
-        const attack = this._attacks[this._attackIndex];
-        this._attackIndex = (this._attackIndex + 1) % this._attacks.length;
-
-        attack.weapon.shootAt(this, this.getAttackDirection(attack.data));
-        this.scene.sound.play(GameConstants.AudioKeys.ENEMY_SHOOT);
     }
 
     protected move(deltaTime: number) {
@@ -104,14 +92,6 @@ export default class Boss extends BaseEnemy {
         }
 
         this.moveIntoPosition(deltaTime);
-    }
-
-    private initAttacks(bulletsGroup: Phaser.Physics.Arcade.Group, attacksData: BossAttackData[]) {
-        for (const attackData of attacksData) {
-            const weapon = new SpreadWeapon(bulletsGroup, toBulletData(attackData.bullet), attackData);
-            this._attacks.push({data: attackData, weapon});
-            this.addComponent(weapon);
-        }
     }
 
     private watchFinisherThreshold(finisherThreshold: number) {
@@ -131,14 +111,6 @@ export default class Boss extends BaseEnemy {
     private fitBodyToSprite() {
         const radius: number = Math.min(this.width, this.height) / 2;
         this.arcadeBody.setCircle(radius, this.width / 2 - radius, this.height / 2 - radius);
-    }
-
-    private getAttackDirection(attack: BossAttackData): number {
-        const shouldAimAtTarget: boolean = attack.aimAtPlayer && this._target.active;
-        if (!shouldAimAtTarget)
-            return this.rotation;
-
-        return Phaser.Math.Angle.Between(this.x, this.y, this._target.x, this._target.y);
     }
 
     private moveIntoPosition(deltaTime: number) {

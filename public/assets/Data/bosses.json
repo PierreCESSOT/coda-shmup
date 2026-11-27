@@ -24,9 +24,9 @@
         "amplitude": 300,
         "frequency": 0.15
       },
-      "attackDelay": 1400,
       "attacks": [
         {
+          "delay": 1400,
           "count": 7,
           "angle": 90,
           "aimAtPlayer": false,
@@ -39,6 +39,7 @@
           }
         },
         {
+          "delay": 1400,
           "count": 12,
           "angle": 360,
           "aimAtPlayer": false,
@@ -68,9 +69,9 @@
         "amplitude": 250,
         "frequency": 0.35
       },
-      "attackDelay": 1100,
       "attacks": [
         {
+          "delay": 1100,
           "count": 36,
           "angle": 360,
           "aimAtPlayer": false,
@@ -83,6 +84,7 @@
           }
         },
         {
+          "delay": 1100,
           "count": 5,
           "angle": 30,
           "aimAtPlayer": true,
@@ -112,9 +114,9 @@
         "amplitude": 350,
         "frequency": 0.5
       },
-      "attackDelay": 700,
       "attacks": [
         {
+          "delay": 700,
           "count": 3,
           "angle": 20,
           "aimAtPlayer": true,
@@ -127,6 +129,7 @@
           }
         },
         {
+          "delay": 700,
           "count": 3,
           "angle": 20,
           "aimAtPlayer": true,
@@ -139,6 +142,7 @@
           }
         },
         {
+          "delay": 700,
           "count": 9,
           "angle": 120,
           "aimAtPlayer": false,

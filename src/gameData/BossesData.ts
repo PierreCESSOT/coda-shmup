@@ -16,7 +16,6 @@ export type BossData = {
     health: number;
     entry: BossEntryData;
     movement: BossMovementData;
-    attackDelay: number;            // Time between two attacks, in milliseconds
     attacks: BossAttackData[];      // Attacks are used in this order, then loop
 }
 
@@ -26,7 +25,12 @@ export type BossEntryData = {
 }
 
 export type BossAttackData = SpreadPatternData & {
-    aimAtPlayer: boolean;           // Center the spread on the player instead of shooting straight
+    delay: number;                  // Time before the next shot, in milliseconds
+    repeat?: number;                // Number of shots in a row before the next attack (1 by default)
+    aimAtPlayer?: boolean;          // Aim at the player instead of shooting straight ahead
+    angleOffset?: number;           // Shifts the fan, in degrees
+    mirrored?: boolean;             // Also fires on the other side (-angleOffset), like two claws
+    spin?: number;                  // Rotation added to each shot, in degrees: draws a spiral
 }
 
 export type FinisherData = {
