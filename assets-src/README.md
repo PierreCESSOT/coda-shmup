@@ -26,6 +26,9 @@ Les sprites `boss*`, `ship*`, `powerup*` et `playerShip*_accent` viennent de la 
 Leurs PNG ont été extraits de cet atlas (sans rognage ni rotation), pour que `npm run atlas` puisse à nouveau le regénérer.
 Leur auteur et leur licence ne sont pas documentés dans le dépôt : à confirmer avec l'auteur de la branche.
 
+`bossOrb` et `bossSatellite` remplacent `bossGrey` et `bossBrain` : ce sont des images fournies par Samir.
+Comme les autres boss, elles sont enregistrées tournées de 90° vers la gauche, car le jeu tourne les boss de 90° vers la droite.
+
 ## Ce qui reste hors de l'atlas
 
 Les images répétées, comme le fond `darkPurple`, restent des images à part (`public/assets/Backgrounds/`).

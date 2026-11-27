@@ -557,7 +557,7 @@
     },
     {
       "name": "GREY OVERLORD",
-      "texture": "bossGrey",
+      "texture": "bossOrb",
       "tint": null,
       "scale": 2,
       "health": 170,
@@ -792,7 +792,7 @@
     },
     {
       "name": "PSY BRAIN",
-      "texture": "bossBrain",
+      "texture": "bossSatellite",
       "tint": null,
       "scale": 2,
       "health": 205,
