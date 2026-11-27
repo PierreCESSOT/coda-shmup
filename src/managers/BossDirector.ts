@@ -3,7 +3,7 @@ import Health from "../components/Health.ts";
 import ChargeLaser from "../components/ChargeLaser.ts";
 import Boss from "../entities/Boss.ts";
 import Player from "../entities/Player.ts";
-import type {BossData, BossesData} from "../gameData/BossesData.ts";
+import type {BossData, BossesData, BossSummonData} from "../gameData/BossesData.ts";
 import type {PlayerData} from "../gameData/PlayerData.ts";
 import GameConstants from "../GameConstants.ts";
 import RegistryConstants from "../RegistryConstants.ts";
@@ -14,8 +14,12 @@ import RegistryConstants from "../RegistryConstants.ts";
  *  - WHICH: the regular bosses in a loop, and an ultra boss every "ultraEvery" bosses
  *  - HOW MUCH HEALTH: a bit more at each cycle, the run is infinite
  *  - THE END: arms the charged laser of the player, checks if it hits, and rewards the player
+ *
+ * It does not create the summoned enemies: it tells the EntityManager with the SUMMON_EVENT.
  */
-export default class BossDirector {
+export default class BossDirector extends Phaser.Events.EventEmitter {
+    public static readonly SUMMON_EVENT: string = 'summon';     // (boss, summon data)
+
     private static readonly BOSS_DEATH_DURATION: number = 500;
 
     private readonly _scene: Scene;
@@ -40,6 +44,8 @@ export default class BossDirector {
     }
 
     public constructor(scene: Scene, player: Player, enemyBullets: Physics.Arcade.Group) {
+        super();
+
         this._scene = scene;
         this._player = player;
         this._enemyBullets = enemyBullets;
@@ -68,6 +74,7 @@ export default class BossDirector {
         this._currentBoss = boss;
 
         boss.once(Boss.FINISHER_READY_EVENT, () => this.onFinisherReady(boss));
+        boss.on(Boss.SUMMON_EVENT, this.onBossSummon, this);
         boss.getComponent(Health)?.once(Health.DEATH_EVENT, () => this.onBossKilled(boss));
 
         this._scene.game.events.emit(GameConstants.Events.BOSS_SPAWNED_EVENT, boss);
@@ -110,6 +117,10 @@ export default class BossDirector {
         boss.enable(this._scene.cameras.main.centerX, 0);
 
         return boss;
+    }
+
+    private onBossSummon(boss: Boss, summon: BossSummonData) {
+        this.emit(BossDirector.SUMMON_EVENT, boss, summon);
     }
 
     private onFinisherReady(boss: Boss) {

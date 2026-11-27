@@ -19,6 +19,7 @@ export type BossData = {
     entry: BossEntryData;
     movement: BossMovementData;
     attacks: BossAttackData[];      // Attacks are used in this order, then loop
+    summon?: BossSummonData;        // Optional: calls reinforcements when its health is low
 }
 
 export type BossEntryData = {
@@ -33,6 +34,13 @@ export type BossAttackData = SpreadPatternData & {
     angleOffset?: number;           // Shifts the fan, in degrees
     mirrored?: boolean;             // Also fires on the other side (-angleOffset), like two claws
     spin?: number;                  // Rotation added to each shot, in degrees: draws a spiral
+}
+
+export type BossSummonData = {
+    healthThreshold: number;        // Share of health under which it starts summoning (0.5 = 50 %)
+    delay: number;                  // Time between two summons, in milliseconds
+    count: number;                  // Number of enemies per summon
+    enemy: 'ufo' | 'sine';
 }
 
 export type FinisherData = {

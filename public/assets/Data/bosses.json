@@ -232,7 +232,13 @@
             "damage": 18
           }
         }
-      ]
+      ],
+      "summon": {
+        "healthThreshold": 0.6,
+        "delay": 5000,
+        "count": 2,
+        "enemy": "ufo"
+      }
     },
     {
       "name": "VOID MOTHERSHIP",
@@ -384,7 +390,7 @@
       "movement": {
         "type": "dash",
         "delay": 2800,
-        "speed": 1,
+        "speed": 1.0,
         "amplitude": 120,
         "frequency": 0.3
       },
@@ -478,7 +484,13 @@
             "damage": 23
           }
         }
-      ]
+      ],
+      "summon": {
+        "healthThreshold": 0.5,
+        "delay": 6750,
+        "count": 2,
+        "enemy": "sine"
+      }
     },
     {
       "name": "THE WATCHER",
@@ -538,7 +550,13 @@
             "damage": 19
           }
         }
-      ]
+      ],
+      "summon": {
+        "healthThreshold": 0.5,
+        "delay": 6000,
+        "count": 2,
+        "enemy": "ufo"
+      }
     },
     {
       "name": "GREY OVERLORD",
@@ -584,7 +602,13 @@
             "damage": 19
           }
         }
-      ]
+      ],
+      "summon": {
+        "healthThreshold": 0.5,
+        "delay": 7500,
+        "count": 2,
+        "enemy": "sine"
+      }
     },
     {
       "name": "CHAOS HYDRA",
@@ -645,7 +669,13 @@
             "damage": 23
           }
         }
-      ]
+      ],
+      "summon": {
+        "healthThreshold": 0.5,
+        "delay": 6000,
+        "count": 3,
+        "enemy": "ufo"
+      }
     },
     {
       "name": "HIVE QUEEN",
@@ -694,7 +724,13 @@
             "damage": 19
           }
         }
-      ]
+      ],
+      "summon": {
+        "healthThreshold": 0.5,
+        "delay": 6750,
+        "count": 4,
+        "enemy": "sine"
+      }
     },
     {
       "name": "BONE REAPER",
@@ -753,7 +789,13 @@
             "damage": 23
           }
         }
-      ]
+      ],
+      "summon": {
+        "healthThreshold": 0.5,
+        "delay": 6000,
+        "count": 2,
+        "enemy": "ufo"
+      }
     },
     {
       "name": "PSY BRAIN",
@@ -813,7 +855,13 @@
             "damage": 23
           }
         }
-      ]
+      ],
+      "summon": {
+        "healthThreshold": 0.5,
+        "delay": 6750,
+        "count": 3,
+        "enemy": "sine"
+      }
     }
   ]
 }

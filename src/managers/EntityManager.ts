@@ -2,6 +2,8 @@ import {GameObjects, Plugins, Physics, Scene} from "phaser";
 import Health from "../components/Health.ts";
 import PowerUpSlot from "../components/PowerUpSlot.ts";
 import Shockwave from "../effects/Shockwave.ts";
+import Boss from "../entities/Boss.ts";
+import type {BossSummonData} from "../gameData/BossesData.ts";
 import Bullet from "../entities/Bullet.ts";
 import BaseEnemy from "../entities/BaseEnemy.ts";
 import Enemy from "../entities/Enemy.ts";
@@ -27,6 +29,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
     private static readonly ENEMY_SPAWN_DELAY: number = 1500;
     private static readonly ENEMY_MAX_ACTIVE: number = 5;
     private static readonly ENEMY_SPAWN_MARGIN: number = 64;
+    private static readonly SUMMON_SPACING: number = 160;
     private static readonly CAMERA_SHAKE_DURATION: number = 100;
     private static readonly BULLET_HIT_SHAKE_INTENSITY: number = 0.01;
     private static readonly CONTACT_SHAKE_INTENSITY: number = 0.03;
@@ -143,6 +146,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
     // A new game gets a new BossDirector (the plugin itself survives the restart of the scene)
     private initBossDirector() {
         this._bossDirector = new BossDirector(this.scene!, this._player, this._enemyBullets);
+        this._bossDirector.on(BossDirector.SUMMON_EVENT, this.summonEnemies, this);
     }
 
     private initPlayerBulletCollisions() {
@@ -224,15 +228,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
         if (this._bossDirector.isBossFightActive || enemies.countActive(true) >= maxActive)
             return;
 
-        const enemy = enemies.get() as BaseEnemy | null;
-        if (!enemy)
-            return;
-
-        enemy.enable(this.pickSpawnX(margin), 0);
-
-        this.game!.events.emit(GameConstants.Events.ENEMY_SPAWNED_EVENT, enemy);
-
-        console.log("[EntityManager] Enemy spawned");
+        this.spawnEnemyAt(enemies, this.pickSpawnX(margin), 0);
     }
 
     // If the margin is too large for the screen, spawn in the middle
@@ -242,5 +238,30 @@ export default class EntityManager extends Plugins.ScenePlugin {
             return camera.centerX;
 
         return Phaser.Math.Between(margin, camera.width - margin);
+    }
+
+    private spawnEnemyAt(enemies: Physics.Arcade.Group, x: number, y: number) {
+        const enemy = enemies.get() as BaseEnemy | null;
+        if (!enemy)
+            return;
+
+        enemy.enable(x, y);
+
+        this.game!.events.emit(GameConstants.Events.ENEMY_SPAWNED_EVENT, enemy);
+
+        console.log("[EntityManager] Enemy spawned");
+    }
+
+    // Reinforcements of an ultra boss: spread on each side of the boss
+    private summonEnemies(boss: Boss, summon: BossSummonData) {
+        const enemies: Physics.Arcade.Group = summon.enemy === 'ufo' ? this._enemies : this._sineEnemies;
+        const camera = this.scene!.cameras.main;
+        const margin: number = EntityManager.ENEMY_SPAWN_MARGIN;
+
+        for (let i: number = 0; i < summon.count; i++) {
+            const offsetX: number = (i - (summon.count - 1) / 2) * EntityManager.SUMMON_SPACING;
+            const x: number = Phaser.Math.Clamp(boss.x + offsetX, margin, camera.width - margin);
+            this.spawnEnemyAt(enemies, x, boss.y + boss.displayHeight / 2);
+        }
     }
 }
