@@ -33,7 +33,13 @@
           "damageMultiplier": 5
         },
         {
-          "name": "SUPER DAMAGE III"
+          "name": "SUPER DAMAGE III",
+          "shockwave": {
+            "speed": 1.8,
+            "maxRadius": 2400,
+            "bossDamage": 25,
+            "color": "#ff7a00"
+          }
         }
       ]
     },
@@ -115,7 +121,13 @@
           "bossDamageMultiplier": 1
         }
       },
-      "shield": 50
+      "shield": 50,
+      "shockwave": {
+        "speed": 1.8,
+        "maxRadius": 2400,
+        "bossDamage": 25,
+        "color": "#ff7a00"
+      }
     },
     {
       "id": "thunderfire",

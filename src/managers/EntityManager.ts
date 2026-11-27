@@ -1,12 +1,14 @@
 import {GameObjects, Plugins, Physics, Scene} from "phaser";
 import Health from "../components/Health.ts";
 import PowerUpSlot from "../components/PowerUpSlot.ts";
+import Shockwave from "../effects/Shockwave.ts";
 import Bullet from "../entities/Bullet.ts";
 import BaseEnemy from "../entities/BaseEnemy.ts";
 import Enemy from "../entities/Enemy.ts";
 import SineEnemy from "../entities/SineEnemy.ts";
 import type {EnemiesData, SineEnemyData} from "../gameData/EnemiesData.ts";
 import type {PlayerData} from "../gameData/PlayerData.ts";
+import type {PowerUpEffects} from "../gameData/PowerUpsData.ts";
 import Player from "../entities/Player.ts";
 import BossDirector from "./BossDirector.ts";
 import PowerUpSpawner from "./PowerUpSpawner.ts";
@@ -112,6 +114,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
         // Bosses stay at the top of the screen: only bullets can reach them
         this.initEnemyBulletCollisions(this._bossDirector.bosses, bullet => bullet.bossDamage);
         this.initPlayerBulletCollisions();
+        this.initShockwaves();
 
         console.log("[EntityManager] Group collisions initialized");
     }
@@ -148,6 +151,25 @@ export default class EntityManager extends Plugins.ScenePlugin {
             (player as Player).getComponent(Health)?.damage((bullet as Bullet).damage);
 
             this.shakeCamera(EntityManager.BULLET_HIT_SHAKE_INTENSITY);
+        });
+    }
+
+    // Power-up level that releases a shockwave, which sweeps the enemies, the enemy bullets and hurts the bosses
+    private initShockwaves() {
+        this._player.getComponent(PowerUpSlot)?.on(PowerUpSlot.START_EVENT, (effects: PowerUpEffects) => {
+            if (!effects.shockwave)
+                return;
+
+            new Shockwave(this.scene!, {
+                x: this._player.x,
+                y: this._player.y,
+                data: effects.shockwave,
+                targets: {
+                    enemies: [this._enemies, this._sineEnemies],
+                    bullets: this._enemyBullets,
+                    bosses: this._bossDirector.bosses
+                }
+            });
         });
     }
 

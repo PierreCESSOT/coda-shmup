@@ -24,6 +24,7 @@ export type PowerUpEffects = {
     shield?: number;                // Temporary health, lost when the power-up ends
     ram?: boolean;                  // Ramming small enemies destroys them without taking damage
     speedMultiplier?: number;       // Speed of the ship multiplied
+    shockwave?: ShockwaveData;      // Shockwave released when this level is reached
 }
 
 /**
@@ -58,8 +59,16 @@ export type PowerUpWeaponData = {
     bullet: BulletConfigData;
 }
 
+export type ShockwaveData = {
+    speed: number;                  // Speed at which the wave grows, in pixels per millisecond
+    maxRadius: number;              // Maximum size, in pixels
+    bossDamage: number;             // Damage to the bosses (small enemies and bullets are destroyed)
+    color: string;
+}
+
 const EFFECT_KEYS: (keyof PowerUpEffects)[] = [
     'name', 'color', 'damageMultiplier', 'weapon', 'fireRateMultiplier', 'spread', 'piercing', 'shield', 'ram', 'speedMultiplier',
+    'shockwave'
 ];
 
 // Keeps only the effects of a power-up, of a combo or of a level
@@ -79,6 +88,8 @@ export function getPowerUpEffects(powerUp: PowerUpDefinition, level: number): Po
 
     const reachedLevels: PowerUpLevelData[] = (powerUp.levels ?? []).slice(0, level - 1);
     for (const levelData of reachedLevels) {
+        // A shockwave is only released at the level where it is written
+        delete effects.shockwave;
         Object.assign(effects, pickEffects(levelData));
     }
 
