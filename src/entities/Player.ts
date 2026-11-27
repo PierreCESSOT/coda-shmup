@@ -16,7 +16,6 @@ import RegistryConstants from "../RegistryConstants.ts";
 import GameConstants from "../GameConstants.ts";
 
 export default class Player extends Entity {
-    private static readonly MAX_HEALTH: number = 3;
     private static readonly DEFAULT_SHIP_ID: number = 1;
     private static readonly DEFAULT_RATE_OF_FIRE: number = 0.5;
     private static readonly DEFAULT_SHOOT_SOUND: string = GameConstants.AudioKeys.PLAYER_SHOOT;
@@ -35,6 +34,7 @@ export default class Player extends Entity {
     private readonly _cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
     private _chargeLaserKey: Phaser.Input.Keyboard.Key;
     private _playerShipData: PlayerShipData;
+    private _startingHealth: number;
     private _rateOfFire: number;
     private _shootSound: string;
     private _streakData: StreakData;
@@ -54,7 +54,11 @@ export default class Player extends Entity {
     }
 
     public init(bulletsGroup: Phaser.Physics.Arcade.Group) {
-        this.addComponent(new Health(Player.MAX_HEALTH, this));
+        // Ship chosen in the home menu: its health is fixed for the whole game
+        const shipId: number = this.scene.registry.get(RegistryConstants.Keys.PLAYER_SHIP_ID) ?? Player.DEFAULT_SHIP_ID;
+        this._startingHealth = this.getShipsData()[shipId].health;
+
+        this.addComponent(new Health(this._startingHealth, this));
         this.addComponent(new Movement());
         this.addComponent(new Weapon(bulletsGroup, this._bulletData));
         this.initChargeLaser();
@@ -62,9 +66,7 @@ export default class Player extends Entity {
         this.listenToEnemyKills();
 
         this.angle = Player.FACING_UP_ANGLE;
-
-        // Ship chosen in the home menu
-        this.selectPlayerShip(this.scene.registry.get(RegistryConstants.Keys.PLAYER_SHIP_ID) ?? Player.DEFAULT_SHIP_ID);
+        this.selectPlayerShip(shipId);
 
         this._rateOfFire = Player.DEFAULT_RATE_OF_FIRE;
         this._shootSound = Player.DEFAULT_SHOOT_SOUND;
@@ -74,8 +76,7 @@ export default class Player extends Entity {
     }
 
     public selectPlayerShip(playerShipDataId: number) {
-        const playerShipsData = this.scene.cache.json.get(GameConstants.DataKeys.PLAYER_SHIPS) as PlayerShipsData;
-        this._playerShipData = playerShipsData[playerShipDataId];
+        this._playerShipData = this.getShipsData()[playerShipDataId];
 
         const shipColors = this.scene.cache.json.get(GameConstants.DataKeys.SHIP_COLORS) as ShipColorData[];
         const colorIndex: number = this.scene.registry.get(RegistryConstants.Keys.PLAYER_SHIP_COLOR) ?? 0;
@@ -83,7 +84,7 @@ export default class Player extends Entity {
         const bodyData = this._playerShipData.body;
         this.arcadeBody.setCircle(bodyData.radius, bodyData.offsetX, bodyData.offsetY);
 
-        this.getComponent(Movement)?.setSpeed(this._playerShipData.movementSpeed);
+        this.refreshStats();
     }
 
     preUpdate(timeSinceLaunch: number, deltaTime: number) {
@@ -97,6 +98,10 @@ export default class Player extends Entity {
         this.getComponent(ChargeLaser)?.update(this, this.active && (this._chargeLaserKey?.isDown ?? false), deltaTime);
 
         this.handleShootInput(timeSinceLaunch);
+    }
+
+    private getShipsData(): PlayerShipsData {
+        return this.scene.cache.json.get(GameConstants.DataKeys.PLAYER_SHIPS) as PlayerShipsData;
     }
 
     // Disabled until a boss can be finished
@@ -160,6 +165,11 @@ export default class Player extends Entity {
         this._shootSound = Player.DEFAULT_SHOOT_SOUND;
 
         this.preFX?.clear();
+    }
+
+    private refreshStats() {
+        this.getComponent(Movement)?.setSpeed(this._playerShipData.movementSpeed);
+        this.getComponent(Weapon)?.setDamageMultiplier(this._playerShipData.damage);
     }
 
     // Left and right arrow keys move the player smoothly using deltaTime, or rotate it while Shift is held

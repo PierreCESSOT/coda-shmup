@@ -1,4 +1,13 @@
 {
+  "ufoEnemy": {
+    "bullet": {
+      "width": 12,
+      "height": 12,
+      "color": "#f25f5c",
+      "speed": 512,
+      "damage": 14
+    }
+  },
   "sineEnemy": {
     "texture": "ufoGreen",
     "health": 2,
@@ -20,7 +29,7 @@
         "height": 6,
         "color": "#7cfc00",
         "speed": 400,
-        "damage": 1
+        "damage": 8
       }
     }
   }

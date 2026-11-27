@@ -9,6 +9,7 @@ export default class Weapon implements IComponent {
 
     private readonly _bullets: Physics.Arcade.Group;
     private _bulletData: BulletData;
+    private _damageMultiplier: number = 1;
 
     constructor(bullets: Physics.Arcade.Group, bulletData: BulletData) {
         if (!bullets) {
@@ -22,6 +23,11 @@ export default class Weapon implements IComponent {
     // Changes the kind of bullets fired, e.g. to switch to a power-up
     public setBulletData(bulletData: BulletData) {
         this._bulletData = bulletData;
+    }
+
+    // Multiplies the damage of every bullet fired, e.g. for a more powerful ship
+    public setDamageMultiplier(multiplier: number) {
+        this._damageMultiplier = multiplier;
     }
 
     public shoot(source: Entity) {
@@ -41,10 +47,12 @@ export default class Weapon implements IComponent {
         if (!bullet)
             return;
 
+        const bulletData: BulletData = {...this._bulletData, damage: this._bulletData.damage * this._damageMultiplier};
+
         // Get forward vector of the given direction
         const forward: Phaser.Math.Vector2 = new Phaser.Math.Vector2(1, 0).rotate(direction);
-        const bulletVelocity: Phaser.Math.Vector2 = forward.clone().scale(this._bulletData.speed);
+        const bulletVelocity: Phaser.Math.Vector2 = forward.clone().scale(bulletData.speed);
         bullet.enable(source.x + forward.x * source.arcadeBody.radius, source.y + forward.y * source.arcadeBody.radius,
-            bulletVelocity.x, bulletVelocity.y, this._bulletData);
+            bulletVelocity.x, bulletVelocity.y, bulletData);
     }
 }

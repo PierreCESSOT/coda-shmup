@@ -1,6 +1,9 @@
 {
   "1": {
+    "name": "ALL-ROUNDER",
     "movementSpeed": 0.6,
+    "damage": 1.2,
+    "health": 100,
     "texture": "playerShip1_blue",
     "tintableTexture": "playerShip1_grey",
     "body": {
@@ -10,7 +13,10 @@
     }
   },
   "2": {
+    "name": "STRIKER",
     "movementSpeed": 0.9,
+    "damage": 1.8,
+    "health": 110,
     "texture": "playerShip2_blue",
     "tintableTexture": "playerShip2_grey",
     "body": {
@@ -20,7 +26,10 @@
     }
   },
   "3": {
+    "name": "SPEEDSTER",
     "movementSpeed": 1.2,
+    "damage": 0.8,
+    "health": 90,
     "texture": "playerShip3_blue",
     "tintableTexture": "playerShip3_grey",
     "body": {

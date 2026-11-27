@@ -18,6 +18,7 @@ export default class GameConstants {
     // Keys of the JSON files in the Phaser cache
     public static readonly DataKeys = Object.freeze({
         PLAYER_SHIPS: "playerShips",
+        PLAYER: "player",
         ENEMIES: "enemies",
         SHIP_COLORS: "shipColors",
         STREAK: "streak",

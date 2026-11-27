@@ -1,4 +1,5 @@
-import type {BulletData} from '../gameData/BulletData.ts';
+import type {UfoEnemyData} from '../gameData/EnemiesData.ts';
+import {toBulletData} from '../gameData/BulletConfigData.ts';
 import BaseEnemy from './BaseEnemy.ts';
 import Movement from "../components/Movement.ts";
 import Weapon from "../components/Weapon.ts";
@@ -15,18 +16,10 @@ export default class Enemy extends BaseEnemy {
     private static readonly SHOOT_ANIMATION_FRAMES: string[] = [Enemy.IDLE_FRAME, 'ufoRed-shoot0', 'ufoRed-shoot1'];
     private static readonly SHOOT_ANIMATION_FRAME_RATE: number = 4;
 
-    private readonly _bulletData: BulletData = {
-        width: 12,
-        height: 12,
-        color: 0xf25f5c,
-        speed: 512,
-        damage: 1,
-    };
-
-    public init(bulletsGroup: Phaser.Physics.Arcade.Group) {
+    public init(bulletsGroup: Phaser.Physics.Arcade.Group, data: UfoEnemyData) {
         this.initHealth(Enemy.HEALTH);
         this.addComponent(new Movement(Enemy.SPEED));
-        this.addComponent(new Weapon(bulletsGroup, this._bulletData));
+        this.addComponent(new Weapon(bulletsGroup, toBulletData(data.bullet)));
 
         this.angle = BaseEnemy.FACING_DOWN_ANGLE;
 

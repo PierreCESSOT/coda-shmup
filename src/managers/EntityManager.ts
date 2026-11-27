@@ -8,6 +8,7 @@ import BaseEnemy from "../entities/BaseEnemy.ts";
 import Enemy from "../entities/Enemy.ts";
 import SineEnemy from "../entities/SineEnemy.ts";
 import type {EnemiesData, SineEnemyData} from "../gameData/EnemiesData.ts";
+import type {PlayerData} from "../gameData/PlayerData.ts";
 import Player from "../entities/Player.ts";
 import GroupUtils from "../utils/GroupUtils.ts";
 import GameConstants from "../GameConstants.ts";
@@ -25,10 +26,9 @@ export default class EntityManager extends Plugins.ScenePlugin {
     private static readonly ENEMY_MAX_ACTIVE: number = 5;
     private static readonly ENEMY_SPAWN_MARGIN: number = 64;
     private static readonly BOSS_DEATH_DURATION: number = 500;
-    private static readonly RAMMING_DAMAGE: number = 1;
     private static readonly CAMERA_SHAKE_DURATION: number = 100;
     private static readonly BULLET_HIT_SHAKE_INTENSITY: number = 0.01;
-    private static readonly RAMMING_SHAKE_INTENSITY: number = 0.03;
+    private static readonly CONTACT_SHAKE_INTENSITY: number = 0.03;
 
     // noinspection JSUnusedGlobalSymbols
     private readonly bulletGroupConfig = {
@@ -83,12 +83,13 @@ export default class EntityManager extends Plugins.ScenePlugin {
         this._enemyBullets = this.scene!.physics.add.group(this.bulletGroupConfig);
         GroupUtils.populate(EntityManager.ENEMY_BULLET_POOL_SIZE, this._enemyBullets);
 
+        const ufoData = (this.scene!.cache.json.get(GameConstants.DataKeys.ENEMIES) as EnemiesData).ufoEnemy;
         this._enemies = this.scene!.physics.add.group({
             classType: Enemy,
             defaultKey: GameConstants.ATLAS_KEY,
             defaultFrame: Enemy.IDLE_FRAME,
             createCallback: (enemy) => {
-                (enemy as Enemy).init(this._enemyBullets);
+                (enemy as Enemy).init(this._enemyBullets, ufoData);
             }
         });
 
@@ -252,9 +253,9 @@ export default class EntityManager extends Plugins.ScenePlugin {
             enemyHealth?.damage(enemyHealth?.max);
 
             const playerHealth = (player as Player).getComponent(Health);
-            playerHealth?.damage(EntityManager.RAMMING_DAMAGE);
+            playerHealth?.damage(this.contactDamage);
 
-            this.shakeCamera(EntityManager.RAMMING_SHAKE_INTENSITY);
+            this.shakeCamera(EntityManager.CONTACT_SHAKE_INTENSITY);
         });
     }
 
@@ -268,6 +269,10 @@ export default class EntityManager extends Plugins.ScenePlugin {
             (bullet as Bullet).disable();
             health?.damage((bullet as Bullet).damage);
         });
+    }
+
+    private get contactDamage(): number {
+        return (this.scene!.cache.json.get(GameConstants.DataKeys.PLAYER) as PlayerData).contactDamage;
     }
 
     private shakeCamera(intensity: number) {
