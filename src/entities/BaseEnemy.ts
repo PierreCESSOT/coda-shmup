@@ -45,8 +45,7 @@ export default abstract class BaseEnemy extends Entity {
         this._shootTimer.reset(this._shootTimerConfig);
 
         // Restore health, in case the enemy is reused from the pool, without emitting events
-        const health = this.getComponent(Health);
-        health?.heal(health!.max, false);
+        this.getComponent(Health)?.restore();
     }
 
     public disable() {
