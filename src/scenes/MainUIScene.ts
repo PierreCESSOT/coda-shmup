@@ -3,6 +3,8 @@ import Health from "../components/Health.ts";
 import KillStreak from "../components/KillStreak.ts";
 import Boss from "../entities/Boss.ts";
 import Player from "../entities/Player.ts";
+import PlayerHealthBar from "../ui/PlayerHealthBar.ts";
+import {futureText} from "../ui/TextStyles.ts";
 import GameConstants from "../GameConstants.ts";
 import RegistryConstants from "../RegistryConstants.ts";
 
@@ -12,11 +14,15 @@ type EventBinding = {
     handler: Function;
 }
 
+/**
+ * The interface, displayed on top of the game scene.
+ *
+ * It only listens to events (player created, boss created, score...) and passes them on
+ * to the widgets of the ui/ folder. The game does not depend on it: it would run without.
+ */
 export default class MainUIScene extends Scene {
     private static readonly SCREEN_MARGIN: number = 64;
     private static readonly BITMAP_FONT_SIZE: number = 128;
-    private static readonly HEALTH_ICON_SCALE: number = 1.5;
-    private static readonly HEALTH_ICON_TEXT_GAP: number = 16;
     private static readonly HUD_TEXT_FONT_SIZE: number = 48;
     private static readonly STREAK_TEXT_Y: number = 208;
     private static readonly STREAK_BANNER_FONT_SIZE: number = 120;
@@ -31,7 +37,7 @@ export default class MainUIScene extends Scene {
     private static readonly FINISHER_TEXT_COLOR: string = '#ff4dff';
     private static readonly FINISHER_TEXT_DISTANCE_FROM_BOTTOM: number = 360;
 
-    private _playerHealthText: GameObjects.BitmapText;
+    private _playerHealthBar: PlayerHealthBar;
     private _scoreText: GameObjects.BitmapText;
     private _streakText: GameObjects.Text;
     private _streakKillText: GameObjects.Text;
@@ -68,10 +74,6 @@ export default class MainUIScene extends Scene {
         console.log("MainUIScene created");
     }
 
-    private static createTextStyle(fontSize: number, color: string): Phaser.Types.GameObjects.Text.TextStyle {
-        return {fontSize: fontSize + 'px', color, fontFamily: GameConstants.FontKeys.TRUETYPE};
-    }
-
     private getEventBindings(): EventBinding[] {
         const gameEvents = this.game.events;
 
@@ -87,11 +89,7 @@ export default class MainUIScene extends Scene {
     private createPlayerHud() {
         const margin: number = MainUIScene.SCREEN_MARGIN;
 
-        const playerHealthIcon = this.add.image(margin, margin, GameConstants.ATLAS_KEY, "playerLife1_blue")
-            .setOrigin(0, 0).setScale(MainUIScene.HEALTH_ICON_SCALE);
-        const playerHealthTextX: number = playerHealthIcon.x + playerHealthIcon.displayWidth + MainUIScene.HEALTH_ICON_TEXT_GAP;
-        this._playerHealthText = this.add.bitmapText(playerHealthTextX, margin, GameConstants.FontKeys.BITMAP, "x0",
-            MainUIScene.BITMAP_FONT_SIZE);
+        this._playerHealthBar = new PlayerHealthBar(this);
 
         const currentScore: number = this.registry.get(RegistryConstants.Keys.PLAYER_SCORE) ?? 0;
         this._scoreText = this.add.bitmapText(this.scale.width - margin, margin, GameConstants.FontKeys.BITMAP,
@@ -101,9 +99,9 @@ export default class MainUIScene extends Scene {
     // The bitmap font only contains digits and 'x': use the TTF version for words
     private createStreakHud() {
         this._streakText = this.add.text(this.scale.width - MainUIScene.SCREEN_MARGIN, MainUIScene.STREAK_TEXT_Y, "",
-            MainUIScene.createTextStyle(MainUIScene.HUD_TEXT_FONT_SIZE, '#fff')).setOrigin(1, 0);
+            futureText(MainUIScene.HUD_TEXT_FONT_SIZE)).setOrigin(1, 0);
         this._streakKillText = this.add.text(this.scale.width / 2, this.scale.height / 3, "STREAKILL!",
-            MainUIScene.createTextStyle(MainUIScene.STREAK_BANNER_FONT_SIZE, MainUIScene.STREAK_BANNER_COLOR))
+            futureText(MainUIScene.STREAK_BANNER_FONT_SIZE, MainUIScene.STREAK_BANNER_COLOR))
             .setOrigin(0.5).setVisible(false);
     }
 
@@ -112,14 +110,14 @@ export default class MainUIScene extends Scene {
         const barWidth: number = this.scale.width - MainUIScene.BOSS_BAR_SIDE_MARGIN * 2;
 
         this._bossNameText = this.add.text(centerX, MainUIScene.BOSS_NAME_Y, "",
-            MainUIScene.createTextStyle(MainUIScene.HUD_TEXT_FONT_SIZE, '#fff')).setOrigin(0.5);
+            futureText(MainUIScene.HUD_TEXT_FONT_SIZE)).setOrigin(0.5);
         this._bossHealthBarBackground = this.add.rectangle(centerX, MainUIScene.BOSS_BAR_Y, barWidth,
             MainUIScene.BOSS_BAR_HEIGHT, 0x000000, 0.6).setStrokeStyle(4, 0xffffff);
         this._bossHealthBar = this.add.rectangle(centerX - barWidth / 2, MainUIScene.BOSS_BAR_Y, barWidth,
             MainUIScene.BOSS_BAR_HEIGHT, MainUIScene.BOSS_BAR_COLOR).setOrigin(0, 0.5);
         this._finisherText = this.add.text(centerX, this.scale.height - MainUIScene.FINISHER_TEXT_DISTANCE_FROM_BOTTOM,
             "HOLD F TO CHARGE THE LASER!",
-            MainUIScene.createTextStyle(MainUIScene.HUD_TEXT_FONT_SIZE, MainUIScene.FINISHER_TEXT_COLOR)).setOrigin(0.5);
+            futureText(MainUIScene.HUD_TEXT_FONT_SIZE, MainUIScene.FINISHER_TEXT_COLOR)).setOrigin(0.5);
         this.setBossHudVisible(false);
     }
 
@@ -132,11 +130,9 @@ export default class MainUIScene extends Scene {
     }
 
     private onPlayerSpawned(player: Player) {
-        this._playerHealthText.setText("x" + player.getComponent(Health)?.current);
-
-        player.getComponent(Health)?.on(Health.CHANGE_EVENT, (current: number) => {
-            this._playerHealthText.setText("x" + current);
-        }, this);
+        const health = player.getComponent(Health);
+        if (health)
+            this._playerHealthBar.bind(health);
 
         const killStreak = player.getComponent(KillStreak);
         if (killStreak) {
