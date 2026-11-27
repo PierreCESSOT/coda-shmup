@@ -556,7 +556,7 @@
       }
     },
     {
-      "name": "GREY OVERLORD",
+      "name": "ECLIPSE ORB",
       "texture": "bossOrb",
       "tint": null,
       "scale": 2,
@@ -791,7 +791,7 @@
       }
     },
     {
-      "name": "PSY BRAIN",
+      "name": "ORBITAL SENTRY",
       "texture": "bossSatellite",
       "tint": null,
       "scale": 2,
