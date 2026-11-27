@@ -1,13 +1,10 @@
-import {Display, Input, Scene, Scenes} from "phaser";
+import {Input, Scene} from "phaser";
 import {PlayerShipData, PlayerShipsData} from "../gameData/PlayerShipsData.ts";
 import {ShipColorData} from "../gameData/ShipColorData.ts";
 import type {BulletData} from "../gameData/BulletData.ts";
-import {toBulletData} from "../gameData/BulletConfigData.ts";
-import {StreakData} from "../gameData/StreakData.ts";
 import {BossesData} from "../gameData/BossesData.ts";
 import Entity from './Entity.ts';
 import Health from "../components/Health.ts";
-import KillStreak from "../components/KillStreak.ts";
 import ChargeLaser from "../components/ChargeLaser.ts";
 import Movement from "../components/Movement.ts";
 import Weapon from "../components/Weapon.ts";
@@ -21,7 +18,6 @@ export default class Player extends Entity {
     private static readonly DEFAULT_SHOOT_SOUND: string = GameConstants.AudioKeys.PLAYER_SHOOT;
     private static readonly FACING_UP_ANGLE: number = -90;
     private static readonly HIT_INVULNERABILITY_DURATION: number = 50;
-    private static readonly STREAK_GLOW_STRENGTH: number = 6;
 
     private readonly _bulletData: BulletData = {
         width: 12,
@@ -37,7 +33,6 @@ export default class Player extends Entity {
     private _startingHealth: number;
     private _rateOfFire: number;
     private _shootSound: string;
-    private _streakData: StreakData;
     private _lastShotTime: number;
 
     constructor(scene: Scene, x: number, y: number) {
@@ -62,8 +57,6 @@ export default class Player extends Entity {
         this.addComponent(new Movement());
         this.addComponent(new Weapon(bulletsGroup, this._bulletData));
         this.initChargeLaser();
-        this.initKillStreak();
-        this.listenToEnemyKills();
 
         this.angle = Player.FACING_UP_ANGLE;
         this.selectPlayerShip(shipId);
@@ -72,7 +65,7 @@ export default class Player extends Entity {
         this._shootSound = Player.DEFAULT_SHOOT_SOUND;
         this._lastShotTime = 0;
 
-        this.getComponent(Health)?.on(Health.CHANGE_EVENT, this.onHealthChanged, this);
+        this.getComponent(Health)?.on(Health.CHANGE_EVENT, this.disableCollisionsBriefly, this);
     }
 
     public selectPlayerShip(playerShipDataId: number) {
@@ -110,31 +103,6 @@ export default class Player extends Entity {
         this.addComponent(new ChargeLaser(this, bossesData.finisher));
     }
 
-    private initKillStreak() {
-        this._streakData = this.scene.cache.json.get(GameConstants.DataKeys.STREAK) as StreakData;
-
-        const killStreak = new KillStreak(this._streakData.killsRequired);
-        killStreak.on(KillStreak.START_EVENT, this.onStreakStarted, this);
-        killStreak.on(KillStreak.END_EVENT, this.onStreakEnded, this);
-        this.addComponent(killStreak);
-    }
-
-    // Game events outlive the scene: stop listening when it shuts down (e.g. on restart)
-    private listenToEnemyKills() {
-        const gameEvents = this.scene.game.events;
-        gameEvents.on(GameConstants.Events.ENEMY_KILLED_EVENT, this.onEnemyKilled, this);
-        this.scene.events.once(Scenes.Events.SHUTDOWN, () => {
-            gameEvents.off(GameConstants.Events.ENEMY_KILLED_EVENT, this.onEnemyKilled, this);
-        });
-    }
-
-    private onHealthChanged() {
-        // The player can only lose health: any change breaks the streak
-        this.getComponent(KillStreak)?.reset();
-
-        this.disableCollisionsBriefly();
-    }
-
     private disableCollisionsBriefly() {
         this.arcadeBody.setEnable(false);
 
@@ -143,28 +111,6 @@ export default class Player extends Entity {
             if (this.active)
                 this.arcadeBody.setEnable(true);
         });
-    }
-
-    private onEnemyKilled() {
-        this.getComponent(KillStreak)?.addKill();
-    }
-
-    private onStreakStarted() {
-        const laserData = this._streakData.laser;
-        this.getComponent(Weapon)?.setBulletData(toBulletData(laserData.bullet));
-        this._rateOfFire = laserData.fireRate;
-        this._shootSound = laserData.sound;
-
-        // Glow only exists with the WebGL renderer
-        this.preFX?.addGlow(Display.Color.HexStringToColor(laserData.glowColor).color, Player.STREAK_GLOW_STRENGTH);
-    }
-
-    private onStreakEnded() {
-        this.getComponent(Weapon)?.setBulletData(this._bulletData);
-        this._rateOfFire = Player.DEFAULT_RATE_OF_FIRE;
-        this._shootSound = Player.DEFAULT_SHOOT_SOUND;
-
-        this.preFX?.clear();
     }
 
     private refreshStats() {
