@@ -1,7 +1,7 @@
 import {Loader} from "phaser";
 import GameConstants from "../GameConstants.ts";
 import SaveManager from "../managers/SaveManager.ts";
-import ShipCustomizationMenu from "../ui/ShipCustomizationMenu.ts";
+import TitleScreen from "../ui/title/TitleScreen.ts";
 
 export default class HomeScene extends Phaser.Scene {
     private static readonly PROGRESS_BAR_HEIGHT: number = 64;
@@ -20,12 +20,7 @@ export default class HomeScene extends Phaser.Scene {
     }
 
     create() {
-        this.add.text(this.scale.width / 2, this.scale.width / 2, 'CODA SHMUP',
-            {fontSize: '72px', color: '#fff', fontFamily: GameConstants.FontKeys.TRUETYPE}).setOrigin(0.5);
-        this.add.text(this.scale.width / 2, this.scale.width / 2 + 72, 'Press SPACE to start',
-            {fontSize: '32px', color: '#fff'}).setOrigin(0.5);
-
-        new ShipCustomizationMenu(this, this.saveManager);
+        new TitleScreen(this, this.saveManager);
 
         // Ignore the OS key repeat: SPACE may still be held from the previous game
         this.input.keyboard?.on('keydown-SPACE', (event: KeyboardEvent) => {
