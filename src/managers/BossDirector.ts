@@ -4,6 +4,7 @@ import ChargeLaser from "../components/ChargeLaser.ts";
 import Boss from "../entities/Boss.ts";
 import Player from "../entities/Player.ts";
 import type {BossData, BossesData} from "../gameData/BossesData.ts";
+import type {PlayerData} from "../gameData/PlayerData.ts";
 import GameConstants from "../GameConstants.ts";
 import RegistryConstants from "../RegistryConstants.ts";
 
@@ -12,7 +13,7 @@ import RegistryConstants from "../RegistryConstants.ts";
  *  - WHEN: a boss arrives every "scoreInterval" points
  *  - WHICH: the bosses in a loop, in the order of the JSON file
  *  - HOW MUCH HEALTH: a bit more each time all the bosses have been beaten, the run is infinite
- *  - THE END: arms the charged laser of the player and checks if it hits
+ *  - THE END: arms the charged laser of the player, checks if it hits, and rewards the player
  */
 export default class BossDirector {
     private static readonly BOSS_DEATH_DURATION: number = 500;
@@ -122,11 +123,18 @@ export default class BossDirector {
         this._nextBossScore = score + this._data.scoreInterval;
 
         this._player.getComponent(ChargeLaser)?.disarm();
+        this.rewardPlayer();
 
         this._scene.game.events.emit(GameConstants.Events.BOSS_KILLED_EVENT, boss);
         console.log("[BossDirector] Boss killed: " + boss.bossName);
 
         // Bosses are not pooled: destroy it once its death feedback is over
         this._scene.time.delayedCall(BossDirector.BOSS_DEATH_DURATION, () => boss.destroy());
+    }
+
+    // Reward: more max health
+    private rewardPlayer() {
+        const bonusData = (this._scene.cache.json.get(GameConstants.DataKeys.PLAYER) as PlayerData).healthBonus;
+        this._player.applyHealthBonus(bonusData.boss);
     }
 }

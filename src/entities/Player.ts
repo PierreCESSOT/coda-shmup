@@ -1,9 +1,13 @@
-import {Input, Scene} from "phaser";
+import {Input, Scene, Scenes} from "phaser";
 import {PlayerShipData, PlayerShipsData} from "../gameData/PlayerShipsData.ts";
 import {ShipColorData} from "../gameData/ShipColorData.ts";
 import type {BulletData} from "../gameData/BulletData.ts";
+import {PlayerData} from "../gameData/PlayerData.ts";
+import type {RangeData} from "../gameData/RangeData.ts";
 import {BossesData} from "../gameData/BossesData.ts";
 import Entity from './Entity.ts';
+import BaseEnemy from './BaseEnemy.ts';
+import Boss from './Boss.ts';
 import Health from "../components/Health.ts";
 import ChargeLaser from "../components/ChargeLaser.ts";
 import Movement from "../components/Movement.ts";
@@ -29,6 +33,7 @@ export default class Player extends Entity {
 
     private readonly _cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
     private _chargeLaserKey: Phaser.Input.Keyboard.Key;
+    private _playerData: PlayerData;
     private _playerShipData: PlayerShipData;
     private _startingHealth: number;
     private _rateOfFire: number;
@@ -49,6 +54,8 @@ export default class Player extends Entity {
     }
 
     public init(bulletsGroup: Phaser.Physics.Arcade.Group) {
+        this._playerData = this.scene.cache.json.get(GameConstants.DataKeys.PLAYER) as PlayerData;
+
         // Ship chosen in the home menu: its health is fixed for the whole game
         const shipId: number = this.scene.registry.get(RegistryConstants.Keys.PLAYER_SHIP_ID) ?? Player.DEFAULT_SHIP_ID;
         this._startingHealth = this.getShipsData()[shipId].health;
@@ -57,6 +64,7 @@ export default class Player extends Entity {
         this.addComponent(new Movement());
         this.addComponent(new Weapon(bulletsGroup, this._bulletData));
         this.initChargeLaser();
+        this.listenToEnemyKills();
 
         this.angle = Player.FACING_UP_ANGLE;
         this.selectPlayerShip(shipId);
@@ -78,6 +86,17 @@ export default class Player extends Entity {
         this.arcadeBody.setCircle(bodyData.radius, bodyData.offsetX, bodyData.offsetY);
 
         this.refreshStats();
+    }
+
+    // Reward: raises the max health by a random amount, and heals the same amount
+    public applyHealthBonus(range: RangeData) {
+        const health = this.getComponent(Health);
+        if (!health || !this.active)
+            return;
+
+        const amount: number = Phaser.Math.Between(range.min, range.max);
+        health.increaseMax(amount, this._playerData.maxHealthCap);
+        health.heal(amount);
     }
 
     preUpdate(timeSinceLaunch: number, deltaTime: number) {
@@ -103,6 +122,15 @@ export default class Player extends Entity {
         this.addComponent(new ChargeLaser(this, bossesData.finisher));
     }
 
+    // Game events outlive the scene: stop listening when it shuts down (e.g. on restart)
+    private listenToEnemyKills() {
+        const gameEvents = this.scene.game.events;
+        gameEvents.on(GameConstants.Events.ENEMY_KILLED_EVENT, this.onEnemyKilled, this);
+        this.scene.events.once(Scenes.Events.SHUTDOWN, () => {
+            gameEvents.off(GameConstants.Events.ENEMY_KILLED_EVENT, this.onEnemyKilled, this);
+        });
+    }
+
     private disableCollisionsBriefly() {
         this.arcadeBody.setEnable(false);
 
@@ -111,6 +139,12 @@ export default class Player extends Entity {
             if (this.active)
                 this.arcadeBody.setEnable(true);
         });
+    }
+
+    // Every small enemy killed gives a little health back (the bosses give their own reward)
+    private onEnemyKilled(enemy: BaseEnemy) {
+        if (this.active && !(enemy instanceof Boss))
+            this.getComponent(Health)?.heal(this._playerData.killHeal);
     }
 
     private refreshStats() {

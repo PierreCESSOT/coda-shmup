@@ -6,7 +6,7 @@ import {outlinedFutureText} from "./TextStyles.ts";
 /**
  * Health bar of the player, at the top left: "73 / 100".
  * Green, then yellow under 50 %, then red under 25 %.
- * Also shows a small text when the player gains health.
+ * Also shows a small text when the player gains health or max health.
  */
 export default class PlayerHealthBar {
     private static readonly WIDTH: number = 420;
@@ -24,6 +24,7 @@ export default class PlayerHealthBar {
     private static readonly TEXT_FONT_SIZE: number = 32;
     private static readonly POPUP_FONT_SIZE: number = 44;
     private static readonly POPUP_OFFSET_Y: number = 48;
+    private static readonly MAX_POPUP_EXTRA_OFFSET_Y: number = 56;
     private static readonly POPUP_DRIFT: number = 60;
     private static readonly POPUP_DURATION: number = 1500;
     private static readonly MIN_HEAL_FOR_POPUP: number = 1;
@@ -58,6 +59,11 @@ export default class PlayerHealthBar {
             // No text for very small heals (e.g. the 0.25 given by each killed enemy)
             if (current - previous >= PlayerHealthBar.MIN_HEAL_FOR_POPUP)
                 this.showPopup("+" + Math.round(current - previous) + " HP", '#5cff7a', 0);
+        });
+
+        health.on(Health.MAX_CHANGE_EVENT, (max: number, previous: number) => {
+            this.refresh(health);
+            this.showPopup("MAX HP +" + Math.round(max - previous), '#ffd93c', PlayerHealthBar.MAX_POPUP_EXTRA_OFFSET_Y);
         });
     }
 
