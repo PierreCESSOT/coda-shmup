@@ -105,7 +105,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
         this.initEnemyGroupCollisions(this._enemies);
         this.initEnemyGroupCollisions(this._sineEnemies);
         // Bosses stay at the top of the screen: only bullets can reach them
-        this.initEnemyBulletCollisions(this._bossDirector.bosses);
+        this.initEnemyBulletCollisions(this._bossDirector.bosses, bullet => bullet.bossDamage);
         this.initPlayerBulletCollisions();
 
         console.log("[EntityManager] Group collisions initialized");
@@ -147,7 +147,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
     }
 
     private initEnemyGroupCollisions(enemies: Physics.Arcade.Group) {
-        this.initEnemyBulletCollisions(enemies);
+        this.initEnemyBulletCollisions(enemies, bullet => bullet.damage);
 
         this.scene!.physics.add.overlap(this._player, enemies, (player, enemy) => {
             this.scene!.registry.inc(RegistryConstants.Keys.PLAYER_SCORE);
@@ -162,15 +162,19 @@ export default class EntityManager extends Plugins.ScenePlugin {
         });
     }
 
-    private initEnemyBulletCollisions(enemies: Physics.Arcade.Group) {
+    // "getDamage" tells how much damage a bullet deals to this kind of enemy
+    private initEnemyBulletCollisions(enemies: Physics.Arcade.Group, getDamage: (bullet: Bullet) => number) {
         this.scene!.physics.add.overlap(this._playerBullets, enemies, (bullet, enemy) => {
+            // A bullet that goes through only hits each enemy once
+            if (!(bullet as Bullet).registerHit(enemy as BaseEnemy))
+                return;
+
             const health = (enemy as BaseEnemy).getComponent(Health);
             // No points while the enemy can't be hurt (boss waiting for the finisher)
             if (health?.enabled)
                 this.scene!.registry.inc(RegistryConstants.Keys.PLAYER_SCORE);
 
-            (bullet as Bullet).disable();
-            health?.damage((bullet as Bullet).damage);
+            health?.damage(getDamage(bullet as Bullet));
         });
     }
 
