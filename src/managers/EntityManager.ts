@@ -1,8 +1,5 @@
-import {GameObjects, Geom, Plugins, Physics, Scene, Scenes} from "phaser";
+import {GameObjects, Plugins, Physics, Scene} from "phaser";
 import Health from "../components/Health.ts";
-import ChargeLaser from "../components/ChargeLaser.ts";
-import Boss from "../entities/Boss.ts";
-import type {BossData, BossesData} from "../gameData/BossesData.ts";
 import Bullet from "../entities/Bullet.ts";
 import BaseEnemy from "../entities/BaseEnemy.ts";
 import Enemy from "../entities/Enemy.ts";
@@ -10,6 +7,7 @@ import SineEnemy from "../entities/SineEnemy.ts";
 import type {EnemiesData, SineEnemyData} from "../gameData/EnemiesData.ts";
 import type {PlayerData} from "../gameData/PlayerData.ts";
 import Player from "../entities/Player.ts";
+import BossDirector from "./BossDirector.ts";
 import GroupUtils from "../utils/GroupUtils.ts";
 import GameConstants from "../GameConstants.ts";
 import RegistryConstants from "../RegistryConstants.ts";
@@ -25,7 +23,6 @@ export default class EntityManager extends Plugins.ScenePlugin {
     private static readonly ENEMY_SPAWN_DELAY: number = 1500;
     private static readonly ENEMY_MAX_ACTIVE: number = 5;
     private static readonly ENEMY_SPAWN_MARGIN: number = 64;
-    private static readonly BOSS_DEATH_DURATION: number = 500;
     private static readonly CAMERA_SHAKE_DURATION: number = 100;
     private static readonly BULLET_HIT_SHAKE_INTENSITY: number = 0.01;
     private static readonly CONTACT_SHAKE_INTENSITY: number = 0.03;
@@ -44,11 +41,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
     private _playerBullets: Physics.Arcade.Group;
     private _enemies: Physics.Arcade.Group;
     private _sineEnemies: Physics.Arcade.Group;
-    private _bosses: Physics.Arcade.Group;
-    private _bossesData: BossesData;
-    private _currentBoss: Boss | undefined;
-    private _bossCount: number = 0;
-    private _nextBossScore: number = 0;
+    private _bossDirector: BossDirector;
     private _enemyBullets: Physics.Arcade.Group;
 
     constructor(scene: Scene, pluginManager: Plugins.PluginManager) {
@@ -101,7 +94,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
         });
 
         this.initSineEnemies();
-        this.initBosses();
+        this.initBossDirector();
 
         console.log("[EntityManager] Enemies initialized");
 
@@ -112,7 +105,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
         this.initEnemyGroupCollisions(this._enemies);
         this.initEnemyGroupCollisions(this._sineEnemies);
         // Bosses stay at the top of the screen: only bullets can reach them
-        this.initEnemyBulletCollisions(this._bosses);
+        this.initEnemyBulletCollisions(this._bossDirector.bosses);
         this.initPlayerBulletCollisions();
 
         console.log("[EntityManager] Group collisions initialized");
@@ -139,99 +132,9 @@ export default class EntityManager extends Plugins.ScenePlugin {
         });
     }
 
-    private initBosses() {
-        this._bossesData = this.scene!.cache.json.get(GameConstants.DataKeys.BOSSES) as BossesData;
-        this._bosses = this.scene!.physics.add.group();
-
-        // Scene plugins survive a scene restart: reset the boss progression
-        this._currentBoss = undefined;
-        this._bossCount = 0;
-        this._nextBossScore = this._bossesData.scoreInterval;
-
-        this._player.getComponent(ChargeLaser)?.on(ChargeLaser.FIRE_EVENT, this.onLaserFired, this);
-
-        // The registry is global: stop listening when the scene shuts down
-        const registryEvents = this.scene!.registry.events;
-        registryEvents.on(RegistryConstants.Events.PLAYER_SCORE_CHANGE, this.onScoreChanged, this);
-        this.scene!.events.once(Scenes.Events.SHUTDOWN, () => {
-            registryEvents.off(RegistryConstants.Events.PLAYER_SCORE_CHANGE, this.onScoreChanged, this);
-        });
-    }
-
-    private onScoreChanged(_parent: unknown, score: number) {
-        if (!this._currentBoss && score >= this._nextBossScore)
-            this.spawnBoss();
-    }
-
-    private spawnBoss() {
-        const bossData = this.getNextBossData();
-        const boss = this.createBoss(bossData);
-        this._currentBoss = boss;
-
-        boss.once(Boss.FINISHER_READY_EVENT, () => this.onBossFinisherReady(boss));
-        boss.getComponent(Health)?.once(Health.DEATH_EVENT, () => this.onBossKilled(boss));
-
-        this.game!.events.emit(GameConstants.Events.BOSS_SPAWNED_EVENT, boss);
-
-        console.log("[EntityManager] Boss spawned: " + bossData.name);
-    }
-
-    // Infinite run: the bosses loop, in the order of the JSON file
-    private getNextBossData(): BossData {
-        const bosses = this._bossesData.bosses;
-        return bosses[this._bossCount % bosses.length];
-    }
-
-    // Infinite run: a boss gets more health each time all the bosses have been beaten
-    private getBossHealth(bossData: BossData): number {
-        const cycle: number = Math.floor(this._bossCount / this._bossesData.bosses.length);
-        return Math.round(bossData.health * (1 + this._bossesData.healthGrowthPerCycle * cycle));
-    }
-
-    private createBoss(bossData: BossData): Boss {
-        const boss = new Boss(this.scene!, 0, 0, GameConstants.ATLAS_KEY, bossData.texture);
-        boss.init({
-            bulletsGroup: this._enemyBullets,
-            data: bossData,
-            health: this.getBossHealth(bossData),
-            finisherThreshold: this._bossesData.finisher.healthThreshold,
-            target: this._player
-        });
-        this._bosses.add(boss);
-        boss.enable(this.scene!.cameras.main.centerX, 0);
-
-        return boss;
-    }
-
-    private onBossFinisherReady(boss: Boss) {
-        this._player.getComponent(ChargeLaser)?.arm();
-        this.game!.events.emit(GameConstants.Events.BOSS_FINISHER_READY_EVENT, boss);
-    }
-
-    private onBossKilled(boss: Boss) {
-        this._currentBoss = undefined;
-        this._bossCount++;
-        this._nextBossScore = Number(this.scene!.registry.get(RegistryConstants.Keys.PLAYER_SCORE)) + this._bossesData.scoreInterval;
-
-        this._player.getComponent(ChargeLaser)?.disarm();
-        this.game!.events.emit(GameConstants.Events.BOSS_KILLED_EVENT, boss);
-
-        console.log("[EntityManager] Boss killed: " + boss.bossName);
-
-        // Bosses are not pooled: destroy it once its death feedback is over
-        this.scene!.time.delayedCall(EntityManager.BOSS_DEATH_DURATION, () => boss.destroy());
-    }
-
-    private onLaserFired(beam: Geom.Line) {
-        const boss = this._currentBoss;
-        if (!boss || !boss.isFinisherReady)
-            return;
-
-        // The beam is a thick line: grow the boss hit circle by half of its width
-        const beamWidth: number = this._player.getComponent(ChargeLaser)?.beamWidth ?? 0;
-        const hitCircle = new Geom.Circle(boss.x, boss.y, boss.arcadeBody.halfWidth + beamWidth / 2);
-        if (Geom.Intersects.LineToCircle(beam, hitCircle))
-            boss.finish();
+    // A new game gets a new BossDirector (the plugin itself survives the restart of the scene)
+    private initBossDirector() {
+        this._bossDirector = new BossDirector(this.scene!, this._player, this._enemyBullets);
     }
 
     private initPlayerBulletCollisions() {
@@ -281,7 +184,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
 
     private spawnEnemy(enemies: Physics.Arcade.Group, maxActive: number, margin: number) {
         // No regular enemies during a boss fight
-        if (this._currentBoss || enemies.countActive(true) >= maxActive)
+        if (this._bossDirector.isBossFightActive || enemies.countActive(true) >= maxActive)
             return;
 
         const enemy = enemies.get() as BaseEnemy | null;
