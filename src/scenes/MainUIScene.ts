@@ -5,7 +5,7 @@ import Boss from "../entities/Boss.ts";
 import Player from "../entities/Player.ts";
 import PlayerHealthBar from "../ui/PlayerHealthBar.ts";
 import PowerUpDisplay from "../ui/PowerUpDisplay.ts";
-import {futureText} from "../ui/TextStyles.ts";
+import BossHealthBar from "../ui/BossHealthBar.ts";
 import GameConstants from "../GameConstants.ts";
 import RegistryConstants from "../RegistryConstants.ts";
 
@@ -24,23 +24,11 @@ type EventBinding = {
 export default class MainUIScene extends Scene {
     private static readonly SCREEN_MARGIN: number = 64;
     private static readonly BITMAP_FONT_SIZE: number = 128;
-    private static readonly HUD_TEXT_FONT_SIZE: number = 48;
-    private static readonly BOSS_NAME_Y: number = 300;
-    private static readonly BOSS_BAR_Y: number = 360;
-    private static readonly BOSS_BAR_HEIGHT: number = 32;
-    private static readonly BOSS_BAR_SIDE_MARGIN: number = 128;
-    private static readonly BOSS_BAR_COLOR: number = 0xff5050;
-    private static readonly FINISHER_COLOR: number = 0xff4dff;
-    private static readonly FINISHER_TEXT_COLOR: string = '#ff4dff';
-    private static readonly FINISHER_TEXT_DISTANCE_FROM_BOTTOM: number = 360;
 
     private _playerHealthBar: PlayerHealthBar;
     private _scoreText: GameObjects.BitmapText;
     private _powerUpDisplay: PowerUpDisplay;
-    private _bossNameText: GameObjects.Text;
-    private _bossHealthBar: GameObjects.Rectangle;
-    private _bossHealthBarBackground: GameObjects.Rectangle;
-    private _finisherText: GameObjects.Text;
+    private _bossHealthBar: BossHealthBar;
 
     constructor() {
         super(GameConstants.SceneKeys.MAIN_UI);
@@ -63,7 +51,7 @@ export default class MainUIScene extends Scene {
     create() {
         this.createPlayerHud();
         this._powerUpDisplay = new PowerUpDisplay(this);
-        this.createBossHud();
+        this._bossHealthBar = new BossHealthBar(this);
 
         this.scene.bringToTop();
 
@@ -92,22 +80,6 @@ export default class MainUIScene extends Scene {
             this.formatScore(currentScore), MainUIScene.BITMAP_FONT_SIZE).setOrigin(1, 0);
     }
 
-    private createBossHud() {
-        const centerX: number = this.scale.width / 2;
-        const barWidth: number = this.scale.width - MainUIScene.BOSS_BAR_SIDE_MARGIN * 2;
-
-        this._bossNameText = this.add.text(centerX, MainUIScene.BOSS_NAME_Y, "",
-            futureText(MainUIScene.HUD_TEXT_FONT_SIZE)).setOrigin(0.5);
-        this._bossHealthBarBackground = this.add.rectangle(centerX, MainUIScene.BOSS_BAR_Y, barWidth,
-            MainUIScene.BOSS_BAR_HEIGHT, 0x000000, 0.6).setStrokeStyle(4, 0xffffff);
-        this._bossHealthBar = this.add.rectangle(centerX - barWidth / 2, MainUIScene.BOSS_BAR_Y, barWidth,
-            MainUIScene.BOSS_BAR_HEIGHT, MainUIScene.BOSS_BAR_COLOR).setOrigin(0, 0.5);
-        this._finisherText = this.add.text(centerX, this.scale.height - MainUIScene.FINISHER_TEXT_DISTANCE_FROM_BOTTOM,
-            "HOLD F TO CHARGE THE LASER!",
-            futureText(MainUIScene.HUD_TEXT_FONT_SIZE, MainUIScene.FINISHER_TEXT_COLOR)).setOrigin(0.5);
-        this.setBossHudVisible(false);
-    }
-
     private formatScore(score: number): string {
         return score.toString().padStart(GameConstants.MAX_SCORE_DIGITS, "0");
     }
@@ -126,40 +98,15 @@ export default class MainUIScene extends Scene {
             this._powerUpDisplay.bind(powerUpSlot);
     }
 
-    private setBossHudVisible(visible: boolean) {
-        this._bossNameText.setVisible(visible);
-        this._bossHealthBar.setVisible(visible);
-        this._bossHealthBarBackground.setVisible(visible);
-        if (!visible) {
-            this.tweens.killTweensOf(this._finisherText);
-            this._finisherText.setVisible(false);
-        }
-    }
-
     private onBossSpawned(boss: Boss) {
-        this._bossNameText.setText(boss.bossName);
-        this._bossHealthBar.setScale(1, 1).setFillStyle(MainUIScene.BOSS_BAR_COLOR);
-        this.setBossHudVisible(true);
-
-        const health = boss.getComponent(Health);
-        health?.on(Health.CHANGE_EVENT, (current: number) => {
-            this._bossHealthBar.setScale(current / health.max, 1);
-        }, this);
+        this._bossHealthBar.show(boss);
     }
 
     private onBossFinisherReady() {
-        this._bossHealthBar.setFillStyle(MainUIScene.FINISHER_COLOR);
-        this._finisherText.setVisible(true).setAlpha(1);
-        this.tweens.add({
-            targets: this._finisherText,
-            alpha: 0.3,
-            yoyo: true,
-            repeat: -1,
-            duration: 400
-        });
+        this._bossHealthBar.showFinisherHint();
     }
 
     private onBossKilled() {
-        this.setBossHudVisible(false);
+        this._bossHealthBar.hide();
     }
 }
