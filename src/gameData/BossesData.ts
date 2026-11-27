@@ -37,9 +37,8 @@ export type BossAttackData = SpreadPatternData & {
 }
 
 export type BossSummonData = {
-    healthThreshold: number;        // Share of health under which it starts summoning (0.5 = 50 %)
-    delay: number;                  // Time between two summons, in milliseconds
-    count: number;                  // Number of enemies per summon
+    healthThreshold: number;        // Share of health under which it summons, once (0.5 = 50 %)
+    count: number;                  // Number of enemies summoned
     enemy: 'ufo' | 'sine';
 }
 

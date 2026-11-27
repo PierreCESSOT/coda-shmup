@@ -5,7 +5,7 @@ import Health from "../components/Health.ts";
 import IPatternMovement from "../components/IPatternMovement.ts";
 import BossAttackSequence from "../components/BossAttackSequence.ts";
 import GameConstants from "../GameConstants.ts";
-import type {BossData, BossSummonData} from "../gameData/BossesData.ts";
+import type {BossData} from "../gameData/BossesData.ts";
 import PatternMovementFactory from "../utils/PatternMovementFactory.ts";
 
 export type BossSetup = {
@@ -30,7 +30,7 @@ export default class Boss extends BaseEnemy {
     private _attackSequence: BossAttackSequence;
     private _hasEntered: boolean = false;
     private _isFinisherReady: boolean = false;
-    private _summonTimer: Phaser.Time.TimerEvent | undefined;
+    private _hasSummoned: boolean = false;
 
     public get bossName(): string {
         return this._data.name;
@@ -69,18 +69,6 @@ export default class Boss extends BaseEnemy {
 
         this._hasEntered = false;
         this._attackSequence.reset();
-    }
-
-    public disable() {
-        super.disable();
-
-        this.stopSummoning();
-    }
-
-    destroy(fromScene?: boolean) {
-        this.stopSummoning();
-
-        super.destroy(fromScene);
     }
 
     // Called when the charged laser hits the boss
@@ -131,11 +119,14 @@ export default class Boss extends BaseEnemy {
         this.becomeFinishableIfWeak(health, healthRatio);
     }
 
-    // Ultra bosses call reinforcements under a health threshold
+    // Calls reinforcements once, as soon as the health goes under the threshold
     private summonIfWeak(healthRatio: number) {
         const summon = this._data.summon;
-        if (summon && !this._summonTimer && healthRatio <= summon.healthThreshold)
-            this.startSummoning(summon);
+        if (!summon || this._hasSummoned || healthRatio > summon.healthThreshold)
+            return;
+
+        this._hasSummoned = true;
+        this.emit(Boss.SUMMON_EVENT, this, summon);
     }
 
     // Almost dead: bullets no longer hurt it, it has to be finished with the charged laser
@@ -146,20 +137,6 @@ export default class Boss extends BaseEnemy {
         this._isFinisherReady = true;
         health.enabled = false;
         this.emit(Boss.FINISHER_READY_EVENT, this);
-    }
-
-    private startSummoning(summon: BossSummonData) {
-        this.emit(Boss.SUMMON_EVENT, this, summon);
-        this._summonTimer = this.scene.time.addEvent({
-            delay: summon.delay,
-            loop: true,
-            callback: () => this.emit(Boss.SUMMON_EVENT, this, summon)
-        });
-    }
-
-    private stopSummoning() {
-        this._summonTimer?.remove();
-        this._summonTimer = undefined;
     }
 
     // Body circle in texture space, centered: arcade bodies follow the sprite scale
