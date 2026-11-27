@@ -3,9 +3,11 @@ import {SpreadPatternData} from "./SpreadShotData.ts";
 
 export type BossesData = {
     scoreInterval: number;          // Points to score after a boss dies before the next one appears
-    healthGrowthPerCycle: number;   // Extra health ratio each time all the bosses have been beaten
+    ultraEvery: number;             // One boss out of N is an ultra boss
+    healthGrowthPerCycle: number;   // Extra health of every boss at each cycle (0.5 = +50 %)
     finisher: FinisherData;
-    bosses: BossData[];             // Bosses appear in this order, then loop
+    bosses: BossData[];             // Regular bosses, in order, then it starts again
+    ultraBosses: BossData[];        // Ultra bosses, in order, then it starts again
 }
 
 export type BossData = {

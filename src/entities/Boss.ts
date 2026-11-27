@@ -14,6 +14,7 @@ export type BossSetup = {
     health: number;
     finisherThreshold: number;   // Share of health under which only finish() can kill the boss
     target: Entity;              // What the aimed attacks and the dash aim at
+    isUltra: boolean;
 }
 
 // Enters the screen, then moves and attacks.
@@ -22,6 +23,7 @@ export default class Boss extends BaseEnemy {
     public static readonly FINISHER_READY_EVENT: string = 'finisherReady';
 
     private _data: BossData;
+    private _isUltra: boolean = false;
     private _movement: IPatternMovement;
     private _attackSequence: BossAttackSequence;
     private _hasEntered: boolean = false;
@@ -31,12 +33,17 @@ export default class Boss extends BaseEnemy {
         return this._data.name;
     }
 
+    public get isUltra(): boolean {
+        return this._isUltra;
+    }
+
     public get isFinisherReady(): boolean {
         return this._isFinisherReady;
     }
 
     public init(setup: BossSetup) {
         this._data = setup.data;
+        this._isUltra = setup.isUltra;
 
         this.setTexture(GameConstants.ATLAS_KEY, setup.data.texture);
         this.restoreAppearance();

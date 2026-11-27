@@ -11,8 +11,8 @@ import RegistryConstants from "../RegistryConstants.ts";
 /**
  * The conductor of the bosses:
  *  - WHEN: a boss arrives every "scoreInterval" points
- *  - WHICH: the bosses in a loop, in the order of the JSON file
- *  - HOW MUCH HEALTH: a bit more each time all the bosses have been beaten, the run is infinite
+ *  - WHICH: the regular bosses in a loop, and an ultra boss every "ultraEvery" bosses
+ *  - HOW MUCH HEALTH: a bit more at each cycle, the run is infinite
  *  - THE END: arms the charged laser of the player, checks if it hits, and rewards the player
  */
 export default class BossDirector {
@@ -26,6 +26,8 @@ export default class BossDirector {
 
     private _currentBoss: Boss | undefined;
     private _bossCount: number = 0;         // Bosses already beaten
+    private _regularBossCount: number = 0;  // To know which regular boss comes next
+    private _ultraBossCount: number = 0;    // To know which ultra boss comes next
     private _nextBossScore: number;
 
     // Physics group of the bosses, for the collisions
@@ -72,15 +74,25 @@ export default class BossDirector {
         console.log("[BossDirector] Boss spawned: " + bossData.name);
     }
 
-    // Infinite run: the bosses loop, in the order of the JSON file
+    // Each list (regular, ultra) moves forward on its own and starts again when it is over
     private takeNextBossData(): BossData {
-        const bosses = this._data.bosses;
-        return bosses[this._bossCount % bosses.length];
+        if (this.isNextBossUltra())
+            return this._data.ultraBosses[this._ultraBossCount++ % this._data.ultraBosses.length];
+
+        return this._data.bosses[this._regularBossCount++ % this._data.bosses.length];
     }
 
-    // Infinite run: a boss gets more health each time all the bosses have been beaten
+    private isNextBossUltra(): boolean {
+        return (this._bossCount + 1) % this._data.ultraEvery === 0;
+    }
+
+    private isUltra(bossData: BossData): boolean {
+        return this._data.ultraBosses.includes(bossData);
+    }
+
+    // More health at each complete cycle (a cycle ends with an ultra boss)
     private getBossHealth(bossData: BossData): number {
-        const cycle: number = Math.floor(this._bossCount / this._data.bosses.length);
+        const cycle: number = Math.floor(this._bossCount / this._data.ultraEvery);
         return Math.round(bossData.health * (1 + this._data.healthGrowthPerCycle * cycle));
     }
 
@@ -91,7 +103,8 @@ export default class BossDirector {
             data: bossData,
             health: this.getBossHealth(bossData),
             finisherThreshold: this._data.finisher.healthThreshold,
-            target: this._player
+            target: this._player,
+            isUltra: this.isUltra(bossData)
         });
         this._bosses.add(boss);
         boss.enable(this._scene.cameras.main.centerX, 0);
@@ -123,7 +136,7 @@ export default class BossDirector {
         this._nextBossScore = score + this._data.scoreInterval;
 
         this._player.getComponent(ChargeLaser)?.disarm();
-        this.rewardPlayer();
+        this.rewardPlayer(boss);
 
         this._scene.game.events.emit(GameConstants.Events.BOSS_KILLED_EVENT, boss);
         console.log("[BossDirector] Boss killed: " + boss.bossName);
@@ -132,9 +145,9 @@ export default class BossDirector {
         this._scene.time.delayedCall(BossDirector.BOSS_DEATH_DURATION, () => boss.destroy());
     }
 
-    // Reward: more max health
-    private rewardPlayer() {
+    // Reward: more max health, even more after an ultra boss
+    private rewardPlayer(boss: Boss) {
         const bonusData = (this._scene.cache.json.get(GameConstants.DataKeys.PLAYER) as PlayerData).healthBonus;
-        this._player.applyHealthBonus(bonusData.boss);
+        this._player.applyHealthBonus(boss.isUltra ? bonusData.ultraBoss : bonusData.boss);
     }
 }

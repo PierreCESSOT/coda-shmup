@@ -4,13 +4,15 @@ import Boss from "../entities/Boss.ts";
 import {futureText} from "./TextStyles.ts";
 
 /**
- * Health bar of the boss, at the top of the screen, with its name.
+ * Health bar of the boss, at the top of the screen, with its name (in gold for an ultra boss).
  * When the boss is almost dead, the bar turns pink and the "HOLD F..." message blinks at the bottom.
  */
 export default class BossHealthBar {
     private static readonly COLOR: number = 0xff5050;
+    private static readonly ULTRA_COLOR: number = 0xff9a3c;
     private static readonly FINISHER_COLOR: number = 0xff4dff;
     private static readonly FINISHER_TEXT_COLOR: string = '#ff4dff';
+    private static readonly ULTRA_NAME_COLOR: string = '#ffd93c';
     private static readonly FONT_SIZE: number = 48;
     private static readonly NAME_Y: number = 300;
     private static readonly BAR_Y: number = 360;
@@ -46,8 +48,9 @@ export default class BossHealthBar {
     }
 
     public show(boss: Boss) {
-        this._nameText.setText(boss.bossName);
-        this._bar.setScale(1, 1).setFillStyle(BossHealthBar.COLOR);
+        this._nameText.setText(boss.isUltra ? "ULTRA - " + boss.bossName : boss.bossName);
+        this._nameText.setColor(boss.isUltra ? BossHealthBar.ULTRA_NAME_COLOR : '#ffffff');
+        this._bar.setScale(1, 1).setFillStyle(boss.isUltra ? BossHealthBar.ULTRA_COLOR : BossHealthBar.COLOR);
         this.setVisible(true);
 
         const health = boss.getComponent(Health);
