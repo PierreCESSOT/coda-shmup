@@ -1,7 +1,11 @@
 {
   "1": {
-    "movementSpeed": 0.6,
+    "name": "ALL-ROUNDER",
+    "movementSpeed": 0.9,
+    "damage": 1.2,
+    "health": 100,
     "texture": "playerShip1_blue",
+    "accentTexture": "playerShip1_accent",
     "body": {
       "radius": 42,
       "offsetX": -4,
@@ -9,8 +13,12 @@
     }
   },
   "2": {
-    "movementSpeed": 0.9,
+    "name": "STRIKER",
+    "movementSpeed": 0.65,
+    "damage": 1.8,
+    "health": 110,
     "texture": "playerShip2_blue",
+    "accentTexture": "playerShip2_accent",
     "body": {
       "radius": 42,
       "offsetX": -4,
@@ -18,8 +26,12 @@
     }
   },
   "3": {
-    "movementSpeed": 1.2,
+    "name": "SPEEDSTER",
+    "movementSpeed": 1.4,
+    "damage": 0.8,
+    "health": 90,
     "texture": "playerShip3_blue",
+    "accentTexture": "playerShip3_accent",
     "body": {
       "radius": 42,
       "offsetX": -4,

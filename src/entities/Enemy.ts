@@ -1,109 +1,64 @@
-import type {BulletData} from '../gameData/BulletData.ts';
-import Entity from './Entity.ts';
-import Health from "../components/Health.ts";
+import type {UfoEnemyData} from '../gameData/EnemiesData.ts';
+import {toBulletData} from '../gameData/BulletConfigData.ts';
+import BaseEnemy from './BaseEnemy.ts';
 import Movement from "../components/Movement.ts";
 import Weapon from "../components/Weapon.ts";
+import GameConstants from "../GameConstants.ts";
 
-export default class Enemy extends Entity {
-    private readonly _bulletData: BulletData = {
-        width: 12,
-        height: 12,
-        color: 0xf25f5c,
-        speed: 512,
-        damage: 1,
-    };
-    private _shootTimerConfig: Phaser.Types.Time.TimerEventConfig;
-    private _shootTimer: Phaser.Time.TimerEvent;
+export default class Enemy extends BaseEnemy {
+    public static readonly IDLE_FRAME: string = 'ufoRed';
 
-    public init(bulletsGroup: Phaser.Physics.Arcade.Group) {
-        this.addComponent(new Health(1, this));
-        this.addComponent(new Movement(0.2));
-        this.addComponent(new Weapon(bulletsGroup, this._bulletData));
+    private static readonly HEALTH: number = 1;
+    private static readonly SPEED: number = 0.2;
+    private static readonly MIN_SHOOT_DELAY: number = 2000;
+    private static readonly MAX_SHOOT_DELAY: number = 3000;
+    private static readonly SHOOT_ANIMATION_KEY: string = 'ufoShoot';
+    private static readonly SHOOT_ANIMATION_FRAMES: string[] = [Enemy.IDLE_FRAME, 'ufoRed-shoot0', 'ufoRed-shoot1'];
+    private static readonly SHOOT_ANIMATION_FRAME_RATE: number = 4;
 
-        // Listen once per enemy, not on every enable(): pooled enemies are reused many times
-        const health = this.getComponent(Health);
-        health?.on(Health.CHANGE_EVENT, () => {
-            this.setTintFill(0xffffff);
+    public init(bulletsGroup: Phaser.Physics.Arcade.Group, data: UfoEnemyData) {
+        this.initHealth(Enemy.HEALTH);
+        this.addComponent(new Movement(Enemy.SPEED));
+        this.addComponent(new Weapon(bulletsGroup, toBulletData(data.bullet)));
 
-            if (health?.current == 0)
-            {
-                this.disableBody();
-            }
+        this.angle = BaseEnemy.FACING_DOWN_ANGLE;
 
-            this.scene.time.delayedCall(50, () => {
-                this.clearTint();
-
-                if (health?.current == 0)
-                {
-                    this.disable();
-                }
-            });
-        });
-
-        this.angle = 90;
-
-        this._shootTimerConfig = {
-            delay: Phaser.Math.Between(2000, 3000),
-            callback: this.shoot,
-            callbackScope: this,
-            loop: true
-        };
-        this._shootTimer = this.scene.time.addEvent(this._shootTimerConfig);
-
-        // Create animation when enemy is about to shoot in the global animation manager
-        if (!this.scene.anims.exists('ufoShoot')) {
-            this.scene.anims.create({
-                key: 'ufoShoot',
-                frames: [
-                    {key: 'sprites', frame: 'ufoRed'},
-                    {key: 'sprites', frame: 'ufoRed-shoot0'},
-                    {key: 'sprites', frame: 'ufoRed-shoot1'}
-                ],
-                frameRate: 4,
-            });
-        }
+        this.initShootTimer(Phaser.Math.Between(Enemy.MIN_SHOOT_DELAY, Enemy.MAX_SHOOT_DELAY));
+        this.createShootAnimation();
 
         this.arcadeBody.setCircle(this.displayWidth / 2);
-    }
-
-    public enable(x: number, y: number) {
-        this.enableBody(true, x, y - this.displayHeight, true, true);
-        this._shootTimer.reset(this._shootTimerConfig);
-
-        // Restore health, in case the enemy is reused from the pool, without emitting events
-        const health = this.getComponent(Health);
-        health?.heal(health!.max, false);
     }
 
     public disable() {
         this.stop();
         this.removeAllListeners(Phaser.Animations.Events.ANIMATION_COMPLETE);
 
-        this.disableBody(true, true);
-        this._shootTimer.paused = true;
+        super.disable();
     }
 
-    private shoot() {
-        this.play('ufoShoot');
+    protected shoot() {
+        this.play(Enemy.SHOOT_ANIMATION_KEY);
         this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
-            this.setTexture('sprites', 'ufoRed');
+            this.setTexture(GameConstants.ATLAS_KEY, Enemy.IDLE_FRAME);
 
             this.getComponent(Weapon)?.shoot(this);
-            this.scene.sound.play('sfx_laser2');
+            this.scene.sound.play(GameConstants.AudioKeys.ENEMY_SHOOT);
         });
     }
 
-    preUpdate(timeSinceLaunch: number, deltaTime: number) {
-        super.preUpdate(timeSinceLaunch, deltaTime)
+    protected move(deltaTime: number) {
+        this.getComponent(Movement)?.moveVertically(this, deltaTime);
+    }
 
-        // Destroy entities when out of screen
-        if (this.y > this.scene.cameras.main.height + this.displayHeight) {
-            this.disable();
-        }
+    // The animation played when the enemy is about to shoot lives in the global animation manager
+    private createShootAnimation() {
+        if (this.scene.anims.exists(Enemy.SHOOT_ANIMATION_KEY))
+            return;
 
-        if (!this.isTinted)
-            this.getComponent(Movement)?.moveVertically(this, deltaTime);
-        else
-            this.getComponent(Movement)?.moveVertically(this, deltaTime * 0.5);
+        this.scene.anims.create({
+            key: Enemy.SHOOT_ANIMATION_KEY,
+            frames: Enemy.SHOOT_ANIMATION_FRAMES.map(frame => ({key: GameConstants.ATLAS_KEY, frame})),
+            frameRate: Enemy.SHOOT_ANIMATION_FRAME_RATE,
+        });
     }
 }

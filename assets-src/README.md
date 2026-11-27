@@ -22,6 +22,13 @@ nommée comme le fichier sans son extension : `ufoRed.png` devient la frame `'uf
 Les sprites viennent du pack Kenney « Space Shooter Redux », licence CC0 (domaine public) : https://kenney.nl/assets/space-shooter-redux
 `ufoRed-shoot0` et `ufoRed-shoot1` n'en font pas partie : ce sont des variantes de `ufoRed` pour l'animation de tir.
 
+Les sprites `boss*`, `ship*`, `powerup*` et `playerShip*_accent` viennent de la branche `mamad`, où seul l'atlas avait été versionné.
+Leurs PNG ont été extraits de cet atlas (sans rognage ni rotation), pour que `npm run atlas` puisse à nouveau le regénérer.
+Leur auteur et leur licence ne sont pas documentés dans le dépôt : à confirmer avec l'auteur de la branche.
+
+`bossOrb` et `bossSatellite` remplacent `bossGrey` et `bossBrain` : ce sont des images fournies par Samir.
+Comme les autres boss, elles sont enregistrées tournées de 90° vers la gauche, car le jeu tourne les boss de 90° vers la droite.
+
 ## Ce qui reste hors de l'atlas
 
 Les images répétées, comme le fond `darkPurple`, restent des images à part (`public/assets/Backgrounds/`).

@@ -1,0 +1,15 @@
+{
+  "contactDamage": 20,
+  "maxHealthCap": 200,
+  "killHeal": 0.25,
+  "healthBonus": {
+    "boss": {
+      "min": 20,
+      "max": 30
+    },
+    "ultraBoss": {
+      "min": 45,
+      "max": 60
+    }
+  }
+}

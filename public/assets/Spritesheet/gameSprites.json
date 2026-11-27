@@ -4,135 +4,156 @@
 			"image": "gameSprites.png",
 			"format": "RGBA8888",
 			"size": {
-				"w": 174,
-				"h": 416
+				"w": 1013,
+				"h": 1016
 			},
 			"scale": 1,
 			"frames": [
 				{
-					"filename": "playerShip2_blue",
+					"filename": "bossDevourer",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 75,
-						"h": 112
+						"w": 260,
+						"h": 260
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 75,
-						"h": 112
+						"w": 260,
+						"h": 260
 					},
 					"frame": {
 						"x": 2,
 						"y": 2,
-						"w": 75,
-						"h": 112
+						"w": 260,
+						"h": 260
 					}
 				},
 				{
-					"filename": "playerShip1_blue",
+					"filename": "bossHive",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 75,
-						"h": 99
+						"w": 260,
+						"h": 260
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 75,
-						"h": 99
+						"w": 260,
+						"h": 260
 					},
 					"frame": {
 						"x": 2,
-						"y": 118,
-						"w": 75,
-						"h": 99
+						"y": 266,
+						"w": 260,
+						"h": 260
 					}
 				},
 				{
-					"filename": "playerShip3_blue",
+					"filename": "bossHydra",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 75,
-						"h": 98
+						"w": 260,
+						"h": 260
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 75,
-						"h": 98
+						"w": 260,
+						"h": 260
 					},
 					"frame": {
 						"x": 2,
-						"y": 221,
-						"w": 75,
-						"h": 98
+						"y": 530,
+						"w": 260,
+						"h": 260
 					}
 				},
 				{
-					"filename": "ufoRed-shoot0",
+					"filename": "shipCarrier",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 91,
-						"h": 91
+						"w": 220,
+						"h": 220
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 91,
-						"h": 91
+						"w": 220,
+						"h": 220
 					},
 					"frame": {
 						"x": 2,
-						"y": 323,
-						"w": 91,
-						"h": 91
+						"y": 794,
+						"w": 220,
+						"h": 220
 					}
 				},
 				{
-					"filename": "ufoRed-shoot1",
+					"filename": "shipDreadnought",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 91,
-						"h": 91
+						"w": 220,
+						"h": 220
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 91,
-						"h": 91
+						"w": 220,
+						"h": 220
 					},
 					"frame": {
-						"x": 81,
+						"x": 226,
+						"y": 794,
+						"w": 220,
+						"h": 220
+					}
+				},
+				{
+					"filename": "bossOrb",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 260,
+						"h": 260
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 260,
+						"h": 260
+					},
+					"frame": {
+						"x": 450,
 						"y": 2,
-						"w": 91,
-						"h": 91
+						"w": 260,
+						"h": 260
 					}
 				},
 				{
-					"filename": "ufoRed",
+					"filename": "bossSatellite",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
-						"w": 91,
-						"h": 91
+						"w": 260,
+						"h": 260
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
-						"w": 91,
-						"h": 91
+						"w": 260,
+						"h": 260
 					},
 					"frame": {
-						"x": 81,
-						"y": 97,
-						"w": 91,
-						"h": 91
+						"x": 714,
+						"y": 2,
+						"w": 260,
+						"h": 260
 					}
 				},
 				{
@@ -150,8 +171,8 @@
 						"h": 26
 					},
 					"frame": {
-						"x": 81,
-						"y": 192,
+						"x": 978,
+						"y": 2,
 						"w": 33,
 						"h": 26
 					}
@@ -171,8 +192,8 @@
 						"h": 24
 					},
 					"frame": {
-						"x": 81,
-						"y": 222,
+						"x": 978,
+						"y": 32,
 						"w": 25,
 						"h": 24
 					}
@@ -192,8 +213,8 @@
 						"h": 24
 					},
 					"frame": {
-						"x": 81,
-						"y": 250,
+						"x": 978,
+						"y": 60,
 						"w": 25,
 						"h": 24
 					}
@@ -213,10 +234,472 @@
 						"h": 24
 					},
 					"frame": {
-						"x": 81,
-						"y": 278,
+						"x": 978,
+						"y": 88,
 						"w": 24,
 						"h": 24
+					}
+				},
+				{
+					"filename": "powerupDamage",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 96,
+						"h": 96
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 96,
+						"h": 96
+					},
+					"frame": {
+						"x": 266,
+						"y": 2,
+						"w": 96,
+						"h": 96
+					}
+				},
+				{
+					"filename": "playerShip2_accent",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 112
+					},
+					"frame": {
+						"x": 366,
+						"y": 2,
+						"w": 75,
+						"h": 112
+					}
+				},
+				{
+					"filename": "powerupShield",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 96,
+						"h": 96
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 96,
+						"h": 96
+					},
+					"frame": {
+						"x": 266,
+						"y": 102,
+						"w": 96,
+						"h": 96
+					}
+				},
+				{
+					"filename": "playerShip2_blue",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 112
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 112
+					},
+					"frame": {
+						"x": 366,
+						"y": 118,
+						"w": 75,
+						"h": 112
+					}
+				},
+				{
+					"filename": "powerupSpeed",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 96,
+						"h": 96
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 96,
+						"h": 96
+					},
+					"frame": {
+						"x": 266,
+						"y": 202,
+						"w": 96,
+						"h": 96
+					}
+				},
+				{
+					"filename": "playerShip1_accent",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 99
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 99
+					},
+					"frame": {
+						"x": 366,
+						"y": 234,
+						"w": 75,
+						"h": 99
+					}
+				},
+				{
+					"filename": "ufoGold",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 91
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					},
+					"frame": {
+						"x": 266,
+						"y": 302,
+						"w": 91,
+						"h": 91
+					}
+				},
+				{
+					"filename": "shipInterceptor",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 220,
+						"h": 220
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 220,
+						"h": 220
+					},
+					"frame": {
+						"x": 266,
+						"y": 397,
+						"w": 220,
+						"h": 220
+					}
+				},
+				{
+					"filename": "playerShip1_blue",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 99
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 99
+					},
+					"frame": {
+						"x": 445,
+						"y": 266,
+						"w": 75,
+						"h": 99
+					}
+				},
+				{
+					"filename": "playerShip3_accent",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 98
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 98
+					},
+					"frame": {
+						"x": 266,
+						"y": 621,
+						"w": 75,
+						"h": 98
+					}
+				},
+				{
+					"filename": "playerShip3_blue",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 98
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 98
+					},
+					"frame": {
+						"x": 345,
+						"y": 621,
+						"w": 75,
+						"h": 98
+					}
+				},
+				{
+					"filename": "playerShip3_grey",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 98
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 98
+					},
+					"frame": {
+						"x": 424,
+						"y": 621,
+						"w": 75,
+						"h": 98
+					}
+				},
+				{
+					"filename": "shipMothership",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 220,
+						"h": 220
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 220,
+						"h": 220
+					},
+					"frame": {
+						"x": 490,
+						"y": 369,
+						"w": 220,
+						"h": 220
+					}
+				},
+				{
+					"filename": "ufoGreen",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 91
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					},
+					"frame": {
+						"x": 524,
+						"y": 266,
+						"w": 91,
+						"h": 91
+					}
+				},
+				{
+					"filename": "ufoPurple",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 91
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					},
+					"frame": {
+						"x": 619,
+						"y": 266,
+						"w": 91,
+						"h": 91
+					}
+				},
+				{
+					"filename": "shipPhantom",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 220,
+						"h": 220
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 220,
+						"h": 220
+					},
+					"frame": {
+						"x": 450,
+						"y": 723,
+						"w": 220,
+						"h": 220
+					}
+				},
+				{
+					"filename": "ufoRed-shoot0",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 91
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					},
+					"frame": {
+						"x": 503,
+						"y": 593,
+						"w": 91,
+						"h": 91
+					}
+				},
+				{
+					"filename": "ufoRed-shoot1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 91
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					},
+					"frame": {
+						"x": 598,
+						"y": 593,
+						"w": 91,
+						"h": 91
+					}
+				},
+				{
+					"filename": "shipWarbird",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 220,
+						"h": 220
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 220,
+						"h": 220
+					},
+					"frame": {
+						"x": 714,
+						"y": 266,
+						"w": 220,
+						"h": 220
+					}
+				},
+				{
+					"filename": "bossReaper",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 200,
+						"h": 200
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 200,
+						"h": 200
+					},
+					"frame": {
+						"x": 714,
+						"y": 490,
+						"w": 200,
+						"h": 200
+					}
+				},
+				{
+					"filename": "ufoRed",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 91
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					},
+					"frame": {
+						"x": 918,
+						"y": 490,
+						"w": 91,
+						"h": 91
+					}
+				},
+				{
+					"filename": "bossWatcher",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 200,
+						"h": 200
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 200,
+						"h": 200
+					},
+					"frame": {
+						"x": 674,
+						"y": 694,
+						"w": 200,
+						"h": 200
 					}
 				}
 			]
