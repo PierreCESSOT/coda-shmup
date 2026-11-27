@@ -1,8 +1,10 @@
 import {GameObjects, Scenes, Scene} from "phaser";
 import Health from "../components/Health.ts";
+import PowerUpSlot from "../components/PowerUpSlot.ts";
 import Boss from "../entities/Boss.ts";
 import Player from "../entities/Player.ts";
 import PlayerHealthBar from "../ui/PlayerHealthBar.ts";
+import PowerUpDisplay from "../ui/PowerUpDisplay.ts";
 import {futureText} from "../ui/TextStyles.ts";
 import GameConstants from "../GameConstants.ts";
 import RegistryConstants from "../RegistryConstants.ts";
@@ -34,6 +36,7 @@ export default class MainUIScene extends Scene {
 
     private _playerHealthBar: PlayerHealthBar;
     private _scoreText: GameObjects.BitmapText;
+    private _powerUpDisplay: PowerUpDisplay;
     private _bossNameText: GameObjects.Text;
     private _bossHealthBar: GameObjects.Rectangle;
     private _bossHealthBarBackground: GameObjects.Rectangle;
@@ -59,6 +62,7 @@ export default class MainUIScene extends Scene {
     // noinspection JSUnusedGlobalSymbols
     create() {
         this.createPlayerHud();
+        this._powerUpDisplay = new PowerUpDisplay(this);
         this.createBossHud();
 
         this.scene.bringToTop();
@@ -116,6 +120,10 @@ export default class MainUIScene extends Scene {
         const health = player.getComponent(Health);
         if (health)
             this._playerHealthBar.bind(health);
+
+        const powerUpSlot = player.getComponent(PowerUpSlot);
+        if (powerUpSlot)
+            this._powerUpDisplay.bind(powerUpSlot);
     }
 
     private setBossHudVisible(visible: boolean) {

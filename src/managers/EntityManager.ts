@@ -1,5 +1,6 @@
 import {GameObjects, Plugins, Physics, Scene} from "phaser";
 import Health from "../components/Health.ts";
+import PowerUpSlot from "../components/PowerUpSlot.ts";
 import Bullet from "../entities/Bullet.ts";
 import BaseEnemy from "../entities/BaseEnemy.ts";
 import Enemy from "../entities/Enemy.ts";
@@ -8,6 +9,7 @@ import type {EnemiesData, SineEnemyData} from "../gameData/EnemiesData.ts";
 import type {PlayerData} from "../gameData/PlayerData.ts";
 import Player from "../entities/Player.ts";
 import BossDirector from "./BossDirector.ts";
+import PowerUpSpawner from "./PowerUpSpawner.ts";
 import GroupUtils from "../utils/GroupUtils.ts";
 import GameConstants from "../GameConstants.ts";
 import RegistryConstants from "../RegistryConstants.ts";
@@ -26,6 +28,8 @@ export default class EntityManager extends Plugins.ScenePlugin {
     private static readonly CAMERA_SHAKE_DURATION: number = 100;
     private static readonly BULLET_HIT_SHAKE_INTENSITY: number = 0.01;
     private static readonly CONTACT_SHAKE_INTENSITY: number = 0.03;
+    private static readonly RAM_SHAKE_DURATION: number = 80;
+    private static readonly RAM_SHAKE_INTENSITY: number = 0.01;
 
     // noinspection JSUnusedGlobalSymbols
     private readonly bulletGroupConfig = {
@@ -95,6 +99,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
 
         this.initSineEnemies();
         this.initBossDirector();
+        new PowerUpSpawner(this.scene!, this._player);
 
         console.log("[EntityManager] Enemies initialized");
 
@@ -155,6 +160,12 @@ export default class EntityManager extends Plugins.ScenePlugin {
             const enemyHealth = (enemy as BaseEnemy).getComponent(Health);
             enemyHealth?.damage(enemyHealth?.max);
 
+            // Ramming (power-up) destroys the enemy without any damage to the player
+            if ((player as Player).getComponent(PowerUpSlot)?.effects?.ram) {
+                this.shakeCamera(EntityManager.RAM_SHAKE_INTENSITY, EntityManager.RAM_SHAKE_DURATION);
+                return;
+            }
+
             const playerHealth = (player as Player).getComponent(Health);
             playerHealth?.damage(this.contactDamage);
 
@@ -182,8 +193,8 @@ export default class EntityManager extends Plugins.ScenePlugin {
         return (this.scene!.cache.json.get(GameConstants.DataKeys.PLAYER) as PlayerData).contactDamage;
     }
 
-    private shakeCamera(intensity: number) {
-        this.scene?.cameras.main.shake(EntityManager.CAMERA_SHAKE_DURATION, intensity);
+    private shakeCamera(intensity: number, duration: number = EntityManager.CAMERA_SHAKE_DURATION) {
+        this.scene?.cameras.main.shake(duration, intensity);
     }
 
     private spawnEnemy(enemies: Physics.Arcade.Group, maxActive: number, margin: number) {

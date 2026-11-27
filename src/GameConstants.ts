@@ -21,6 +21,7 @@ export default class GameConstants {
         PLAYER: "player",
         ENEMIES: "enemies",
         SHIP_COLORS: "shipColors",
+        POWER_UPS: "powerups",
         BOSSES: "bosses",
     } as const);
 

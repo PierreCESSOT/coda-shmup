@@ -1,17 +1,21 @@
-import {Input, Scene, Scenes} from "phaser";
+import {Display, Input, Scene, Scenes} from "phaser";
 import {PlayerShipData, PlayerShipsData} from "../gameData/PlayerShipsData.ts";
 import {ShipColorData} from "../gameData/ShipColorData.ts";
 import type {BulletData} from "../gameData/BulletData.ts";
+import {toBulletData} from "../gameData/BulletConfigData.ts";
 import {PlayerData} from "../gameData/PlayerData.ts";
 import type {RangeData} from "../gameData/RangeData.ts";
+import type {PowerUpEffects} from "../gameData/PowerUpsData.ts";
+import type {SpreadData} from "../gameData/SpreadShotData.ts";
 import {BossesData} from "../gameData/BossesData.ts";
 import Entity from './Entity.ts';
 import BaseEnemy from './BaseEnemy.ts';
 import Boss from './Boss.ts';
 import Health from "../components/Health.ts";
+import PowerUpSlot from "../components/PowerUpSlot.ts";
 import ChargeLaser from "../components/ChargeLaser.ts";
 import Movement from "../components/Movement.ts";
-import Weapon from "../components/Weapon.ts";
+import SpreadWeapon from "../components/SpreadWeapon.ts";
 import ShipAppearance from "../utils/ShipAppearance.ts";
 import RegistryConstants from "../RegistryConstants.ts";
 import GameConstants from "../GameConstants.ts";
@@ -22,6 +26,9 @@ export default class Player extends Entity {
     private static readonly DEFAULT_SHOOT_SOUND: string = GameConstants.AudioKeys.PLAYER_SHOOT;
     private static readonly FACING_UP_ANGLE: number = -90;
     private static readonly HIT_INVULNERABILITY_DURATION: number = 50;
+    private static readonly SINGLE_SHOT: SpreadData = {count: 1, angle: 0};
+    private static readonly POWER_UP_GLOW_BASE: number = 3;
+    private static readonly POWER_UP_GLOW_PER_LEVEL: number = 3;
 
     private readonly _bulletData: BulletData = {
         width: 12,
@@ -60,20 +67,16 @@ export default class Player extends Entity {
         const shipId: number = this.scene.registry.get(RegistryConstants.Keys.PLAYER_SHIP_ID) ?? Player.DEFAULT_SHIP_ID;
         this._startingHealth = this.getShipsData()[shipId].health;
 
-        this.addComponent(new Health(this._startingHealth, this));
+        this.initHealth();
         this.addComponent(new Movement());
-        this.addComponent(new Weapon(bulletsGroup, this._bulletData));
+        this.addComponent(new SpreadWeapon(bulletsGroup, this._bulletData, Player.SINGLE_SHOT));
         this.initChargeLaser();
+        this.initPowerUpSlot();
         this.listenToEnemyKills();
 
         this.angle = Player.FACING_UP_ANGLE;
         this.selectPlayerShip(shipId);
-
-        this._rateOfFire = Player.DEFAULT_RATE_OF_FIRE;
-        this._shootSound = Player.DEFAULT_SHOOT_SOUND;
         this._lastShotTime = 0;
-
-        this.getComponent(Health)?.on(Health.CHANGE_EVENT, this.disableCollisionsBriefly, this);
     }
 
     public selectPlayerShip(playerShipDataId: number) {
@@ -102,6 +105,7 @@ export default class Player extends Entity {
     preUpdate(timeSinceLaunch: number, deltaTime: number) {
         super.preUpdate(timeSinceLaunch, deltaTime);
 
+        this.getComponent(PowerUpSlot)?.update(deltaTime);
         this.handleMovementInput(deltaTime);
         // Stop player from going offscreen
         this.x = Phaser.Math.Clamp(this.x, this.displayWidth / 2, this.scene.cameras.main.width - this.displayWidth / 2);
@@ -116,10 +120,23 @@ export default class Player extends Entity {
         return this.scene.cache.json.get(GameConstants.DataKeys.PLAYER_SHIPS) as PlayerShipsData;
     }
 
+    private initHealth() {
+        const health = new Health(this._startingHealth, this);
+        health.on(Health.HIT_EVENT, this.disableCollisionsBriefly, this);
+        this.addComponent(health);
+    }
+
     // Disabled until a boss can be finished
     private initChargeLaser() {
         const bossesData = this.scene.cache.json.get(GameConstants.DataKeys.BOSSES) as BossesData;
         this.addComponent(new ChargeLaser(this, bossesData.finisher));
+    }
+
+    private initPowerUpSlot() {
+        const powerUpSlot = new PowerUpSlot();
+        powerUpSlot.on(PowerUpSlot.START_EVENT, this.onPowerUpStarted, this);
+        powerUpSlot.on(PowerUpSlot.END_EVENT, this.onPowerUpEnded, this);
+        this.addComponent(powerUpSlot);
     }
 
     // Game events outlive the scene: stop listening when it shuts down (e.g. on restart)
@@ -147,9 +164,51 @@ export default class Player extends Entity {
             this.getComponent(Health)?.heal(this._playerData.killHeal);
     }
 
+    private onPowerUpStarted(effects: PowerUpEffects, level: number) {
+        this.refreshStats();
+
+        // The shield is set back to its full value (it does not stack)
+        const health = this.getComponent(Health);
+        if (health && effects.shield)
+            health.addShield(effects.shield - health.shield);
+
+        // The ship glows with the color of the power-up, stronger at each level (WebGL only, hence the "?.")
+        this.preFX?.clear();
+        this.preFX?.addGlow(Display.Color.HexStringToColor(effects.color).color,
+            Player.POWER_UP_GLOW_BASE + level * Player.POWER_UP_GLOW_PER_LEVEL);
+    }
+
+    private onPowerUpEnded() {
+        this.refreshStats();
+        this.getComponent(Health)?.clearShield();
+        this.preFX?.clear();
+    }
+
+    // Stats of the ship, modified by the active power-up if there is one
     private refreshStats() {
-        this.getComponent(Movement)?.setSpeed(this._playerShipData.movementSpeed);
-        this.getComponent(Weapon)?.setDamageMultiplier(this._playerShipData.damage);
+        const effects = this.getComponent(PowerUpSlot)?.effects;
+
+        this.refreshMovement(effects);
+        this.refreshWeapon(effects);
+        this.refreshFireRate(effects);
+    }
+
+    private refreshMovement(effects: PowerUpEffects | undefined) {
+        this.getComponent(Movement)?.setSpeed(this._playerShipData.movementSpeed * (effects?.speedMultiplier ?? 1));
+    }
+
+    private refreshWeapon(effects: PowerUpEffects | undefined) {
+        const weapon = this.getComponent(SpreadWeapon);
+        const bulletData: BulletData = effects?.weapon ? toBulletData(effects.weapon.bullet) : this._bulletData;
+
+        weapon?.setBulletData({...bulletData, piercing: effects?.piercing ?? false});
+        weapon?.setSpread(effects?.spread ?? Player.SINGLE_SHOT);
+        weapon?.setDamageMultiplier(this._playerShipData.damage * (effects?.damageMultiplier ?? 1));
+    }
+
+    private refreshFireRate(effects: PowerUpEffects | undefined) {
+        this._rateOfFire = (effects?.weapon?.fireRate ?? Player.DEFAULT_RATE_OF_FIRE) * (effects?.fireRateMultiplier ?? 1);
+        this._shootSound = effects?.weapon?.sound ?? Player.DEFAULT_SHOOT_SOUND;
     }
 
     // Left and right arrow keys move the player smoothly using deltaTime, or rotate it while Shift is held
@@ -180,7 +239,7 @@ export default class Player extends Entity {
         if (!this._cursorKeys.space.isDown || !this.isWeaponReady(timeSinceLaunch))
             return;
 
-        this.getComponent(Weapon)?.shoot(this);
+        this.getComponent(SpreadWeapon)?.shoot(this);
         this.scene.sound.play(this._shootSound);
 
         this._lastShotTime = timeSinceLaunch;

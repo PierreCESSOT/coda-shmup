@@ -6,6 +6,7 @@ import {outlinedFutureText} from "./TextStyles.ts";
 /**
  * Health bar of the player, at the top left: "73 / 100".
  * Green, then yellow under 50 %, then red under 25 %.
+ * The shield of a power-up (temporary health) is added in blue at the end of the bar: "73 / 100 +50".
  * Also shows a small text when the player gains health or max health.
  */
 export default class PlayerHealthBar {
@@ -21,6 +22,7 @@ export default class PlayerHealthBar {
     private static readonly DANGER_COLOR: number = 0xff5050;
     private static readonly WARNING_RATIO: number = 0.5;
     private static readonly DANGER_RATIO: number = 0.25;
+    private static readonly SHIELD_COLOR: number = 0x4de8ff;
     private static readonly TEXT_FONT_SIZE: number = 32;
     private static readonly POPUP_FONT_SIZE: number = 44;
     private static readonly POPUP_OFFSET_Y: number = 48;
@@ -31,6 +33,7 @@ export default class PlayerHealthBar {
 
     private readonly _scene: Scene;
     private readonly _bar: GameObjects.Rectangle;
+    private readonly _shieldBar: GameObjects.Rectangle;
     private readonly _text: GameObjects.Text;
 
     public constructor(scene: Scene) {
@@ -46,6 +49,8 @@ export default class PlayerHealthBar {
             .setOrigin(0, 0.5).setStrokeStyle(PlayerHealthBar.BORDER_THICKNESS, 0xffffff);
         this._bar = scene.add.rectangle(x, y, PlayerHealthBar.WIDTH, PlayerHealthBar.HEIGHT, PlayerHealthBar.HEALTHY_COLOR)
             .setOrigin(0, 0.5);
+        this._shieldBar = scene.add.rectangle(x, y, PlayerHealthBar.WIDTH, PlayerHealthBar.HEIGHT, PlayerHealthBar.SHIELD_COLOR)
+            .setOrigin(0, 0.5).setScale(0, 1);
         this._text = scene.add.text(x + PlayerHealthBar.WIDTH / 2, y, "", outlinedFutureText(PlayerHealthBar.TEXT_FONT_SIZE))
             .setOrigin(0.5);
     }
@@ -61,6 +66,12 @@ export default class PlayerHealthBar {
                 this.showPopup("+" + Math.round(current - previous) + " HP", '#5cff7a', 0);
         });
 
+        health.on(Health.SHIELD_CHANGE_EVENT, (shield: number, previous: number) => {
+            this.refresh(health);
+            if (shield > previous)
+                this.showPopup("SHIELD +" + Math.round(shield - previous), '#4de8ff', 0);
+        });
+
         health.on(Health.MAX_CHANGE_EVENT, (max: number, previous: number) => {
             this.refresh(health);
             this.showPopup("MAX HP +" + Math.round(max - previous), '#ffd93c', PlayerHealthBar.MAX_POPUP_EXTRA_OFFSET_Y);
@@ -71,6 +82,9 @@ export default class PlayerHealthBar {
         const ratio: number = health.current / health.max;
         this._bar.setScale(ratio, 1);
         this._bar.setFillStyle(this.getBarColor(ratio));
+        // The shield starts where the health stops, without going past the end of the bar
+        const shieldRatio: number = Math.min(health.shield / health.max, 1 - ratio);
+        this._shieldBar.setX(this._bar.x + ratio * PlayerHealthBar.WIDTH).setScale(shieldRatio, 1);
 
         this._text.setText(this.formatText(health));
     }
@@ -88,7 +102,7 @@ export default class PlayerHealthBar {
     private formatText(health: Health): string {
         const text: string = Math.ceil(health.current) + " / " + health.max;
 
-        return text;
+        return health.shield > 0 ? text + "  +" + Math.ceil(health.shield) : text;
     }
 
     // Text that goes down under the bar while fading out

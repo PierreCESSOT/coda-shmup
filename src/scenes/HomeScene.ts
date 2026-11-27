@@ -92,6 +92,7 @@ export default class HomeScene extends Phaser.Scene {
         this.load.json(DataKeys.PLAYER, 'Data/player.json');
         this.load.json(DataKeys.ENEMIES, 'Data/enemies.json');
         this.load.json(DataKeys.SHIP_COLORS, 'Data/shipColors.json');
+        this.load.json(DataKeys.POWER_UPS, 'Data/powerups.json');
         this.load.json(DataKeys.BOSSES, 'Data/bosses.json');
         this.load.audio(AudioKeys.PLAYER_SHOOT, 'Sounds/sfx_laser1.ogg');
         this.load.audio(AudioKeys.ENEMY_SHOOT, 'Sounds/sfx_laser2.ogg');
