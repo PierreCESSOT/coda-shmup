@@ -33,6 +33,9 @@ export default class GameConstants {
     public static readonly FontKeys = Object.freeze({
         BITMAP: "future-bmp",
         TRUETYPE: "future",
+        AUDIOWIDE: "audiowide",
+        SILKSCREEN: "silkscreen",
+        SPACE_MONO: "spacemono",
     } as const);
 
     // Key of the atlas holding every sprite of the game

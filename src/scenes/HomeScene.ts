@@ -73,6 +73,9 @@ export default class HomeScene extends Phaser.Scene {
         this.load.atlas(ATLAS_KEY, 'Spritesheet/gameSprites.png', 'Spritesheet/gameSprites.json');
         this.load.bitmapFont(FontKeys.BITMAP, 'Fonts/kenvector_future.png', 'Fonts/kenvector_future.xml');
         this.load.font(FontKeys.TRUETYPE, 'Fonts/kenvector_future.ttf');
+        this.load.font(FontKeys.AUDIOWIDE, 'Fonts/Audiowide-Regular.ttf');
+        this.load.font(FontKeys.SILKSCREEN, 'Fonts/Silkscreen-Regular.ttf');
+        this.load.font(FontKeys.SPACE_MONO, 'Fonts/SpaceMono-Regular.ttf');
         this.load.json(DataKeys.PLAYER_SHIPS, 'Data/playerShips.json');
         this.load.json(DataKeys.PLAYER, 'Data/player.json');
         this.load.json(DataKeys.ENEMIES, 'Data/enemies.json');
