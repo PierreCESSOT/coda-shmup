@@ -10,6 +10,6 @@ export type PlayerShipData = {
     damage: number;             // Damage multiplier of the bullets (1 = normal)
     health: number;             // Health at the start of a game
     texture: string;
-    tintableTexture: string;    // Greyscale version of the texture, used when a color is chosen
+    accentTexture: string;      // Only the secondary parts of the ship, in grey: they are the ones that get colored
     body: ShipBodyData;
 }

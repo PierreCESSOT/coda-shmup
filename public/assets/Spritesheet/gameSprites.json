@@ -346,24 +346,24 @@
 					}
 				},
 				{
-					"filename": "playerShip2_grey",
+					"filename": "playerShip1_accent",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
 						"w": 75,
-						"h": 112
+						"h": 99
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
 						"w": 75,
-						"h": 112
+						"h": 99
 					},
 					"frame": {
 						"x": 366,
 						"y": 234,
 						"w": 75,
-						"h": 112
+						"h": 99
 					}
 				},
 				{
@@ -409,7 +409,7 @@
 					}
 				},
 				{
-					"filename": "playerShip1_accent",
+					"filename": "playerShip1_blue",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -430,49 +430,49 @@
 					}
 				},
 				{
-					"filename": "playerShip1_blue",
+					"filename": "playerShip3_accent",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
 						"w": 75,
-						"h": 99
+						"h": 98
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
 						"w": 75,
-						"h": 99
+						"h": 98
 					},
 					"frame": {
 						"x": 266,
 						"y": 621,
 						"w": 75,
-						"h": 99
+						"h": 98
 					}
 				},
 				{
-					"filename": "playerShip1_grey",
+					"filename": "playerShip3_blue",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
 						"w": 75,
-						"h": 99
+						"h": 98
 					},
 					"spriteSourceSize": {
 						"x": 0,
 						"y": 0,
 						"w": 75,
-						"h": 99
+						"h": 98
 					},
 					"frame": {
 						"x": 345,
 						"y": 621,
 						"w": 75,
-						"h": 99
+						"h": 98
 					}
 				},
 				{
-					"filename": "playerShip3_accent",
+					"filename": "playerShip3_grey",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -514,48 +514,6 @@
 					}
 				},
 				{
-					"filename": "playerShip3_blue",
-					"rotated": false,
-					"trimmed": false,
-					"sourceSize": {
-						"w": 75,
-						"h": 98
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 75,
-						"h": 98
-					},
-					"frame": {
-						"x": 524,
-						"y": 266,
-						"w": 75,
-						"h": 98
-					}
-				},
-				{
-					"filename": "playerShip3_grey",
-					"rotated": false,
-					"trimmed": false,
-					"sourceSize": {
-						"w": 75,
-						"h": 98
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 75,
-						"h": 98
-					},
-					"frame": {
-						"x": 603,
-						"y": 266,
-						"w": 75,
-						"h": 98
-					}
-				},
-				{
 					"filename": "ufoGreen",
 					"rotated": false,
 					"trimmed": false,
@@ -570,7 +528,28 @@
 						"h": 91
 					},
 					"frame": {
-						"x": 682,
+						"x": 524,
+						"y": 266,
+						"w": 91,
+						"h": 91
+					}
+				},
+				{
+					"filename": "ufoPurple",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 91
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					},
+					"frame": {
+						"x": 619,
 						"y": 266,
 						"w": 91,
 						"h": 91
@@ -591,73 +570,10 @@
 						"h": 220
 					},
 					"frame": {
-						"x": 777,
-						"y": 266,
+						"x": 450,
+						"y": 723,
 						"w": 220,
 						"h": 220
-					}
-				},
-				{
-					"filename": "shipWarbird",
-					"rotated": false,
-					"trimmed": false,
-					"sourceSize": {
-						"w": 220,
-						"h": 220
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 220,
-						"h": 220
-					},
-					"frame": {
-						"x": 777,
-						"y": 490,
-						"w": 220,
-						"h": 220
-					}
-				},
-				{
-					"filename": "bossReaper",
-					"rotated": false,
-					"trimmed": false,
-					"sourceSize": {
-						"w": 200,
-						"h": 200
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 200,
-						"h": 200
-					},
-					"frame": {
-						"x": 777,
-						"y": 714,
-						"w": 200,
-						"h": 200
-					}
-				},
-				{
-					"filename": "ufoPurple",
-					"rotated": false,
-					"trimmed": false,
-					"sourceSize": {
-						"w": 91,
-						"h": 91
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 91,
-						"h": 91
-					},
-					"frame": {
-						"x": 503,
-						"y": 918,
-						"w": 91,
-						"h": 91
 					}
 				},
 				{
@@ -675,8 +591,8 @@
 						"h": 91
 					},
 					"frame": {
-						"x": 598,
-						"y": 918,
+						"x": 503,
+						"y": 593,
 						"w": 91,
 						"h": 91
 					}
@@ -696,10 +612,52 @@
 						"h": 91
 					},
 					"frame": {
-						"x": 693,
-						"y": 918,
+						"x": 598,
+						"y": 593,
 						"w": 91,
 						"h": 91
+					}
+				},
+				{
+					"filename": "shipWarbird",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 220,
+						"h": 220
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 220,
+						"h": 220
+					},
+					"frame": {
+						"x": 714,
+						"y": 266,
+						"w": 220,
+						"h": 220
+					}
+				},
+				{
+					"filename": "bossReaper",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 200,
+						"h": 200
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 200,
+						"h": 200
+					},
+					"frame": {
+						"x": 714,
+						"y": 490,
+						"w": 200,
+						"h": 200
 					}
 				},
 				{
@@ -717,8 +675,8 @@
 						"h": 91
 					},
 					"frame": {
-						"x": 788,
-						"y": 918,
+						"x": 918,
+						"y": 490,
 						"w": 91,
 						"h": 91
 					}
@@ -738,8 +696,8 @@
 						"h": 200
 					},
 					"frame": {
-						"x": 503,
-						"y": 593,
+						"x": 674,
+						"y": 694,
 						"w": 200,
 						"h": 200
 					}
