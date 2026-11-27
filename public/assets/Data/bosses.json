@@ -483,12 +483,7 @@
             "damage": 21
           }
         }
-      ],
-      "summon": {
-        "healthThreshold": 0.5,
-        "count": 2,
-        "enemy": "sine"
-      }
+      ]
     },
     {
       "name": "THE WATCHER",
@@ -548,12 +543,7 @@
             "damage": 17
           }
         }
-      ],
-      "summon": {
-        "healthThreshold": 0.5,
-        "count": 2,
-        "enemy": "ufo"
-      }
+      ]
     },
     {
       "name": "ECLIPSE ORB",
@@ -599,12 +589,7 @@
             "damage": 17
           }
         }
-      ],
-      "summon": {
-        "healthThreshold": 0.5,
-        "count": 2,
-        "enemy": "sine"
-      }
+      ]
     },
     {
       "name": "CHAOS HYDRA",
@@ -665,12 +650,7 @@
             "damage": 21
           }
         }
-      ],
-      "summon": {
-        "healthThreshold": 0.5,
-        "count": 2,
-        "enemy": "ufo"
-      }
+      ]
     },
     {
       "name": "HIVE QUEEN",
@@ -719,12 +699,7 @@
             "damage": 17
           }
         }
-      ],
-      "summon": {
-        "healthThreshold": 0.5,
-        "count": 2,
-        "enemy": "sine"
-      }
+      ]
     },
     {
       "name": "BONE REAPER",
@@ -783,12 +758,7 @@
             "damage": 21
           }
         }
-      ],
-      "summon": {
-        "healthThreshold": 0.5,
-        "count": 2,
-        "enemy": "ufo"
-      }
+      ]
     },
     {
       "name": "ORBITAL SENTRY",
@@ -848,12 +818,7 @@
             "damage": 21
           }
         }
-      ],
-      "summon": {
-        "healthThreshold": 0.5,
-        "count": 2,
-        "enemy": "sine"
-      }
+      ]
     }
   ]
 }

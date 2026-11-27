@@ -252,7 +252,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
         console.log("[EntityManager] Enemy spawned");
     }
 
-    // Reinforcements of an ultra boss: spread on each side of the boss
+    // Reinforcements of a boss: spread on each side of the boss
     private summonEnemies(boss: Boss, summon: BossSummonData) {
         const enemies: Physics.Arcade.Group = summon.enemy === 'ufo' ? this._enemies : this._sineEnemies;
         const camera = this.scene!.cameras.main;
