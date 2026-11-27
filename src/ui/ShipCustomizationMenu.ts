@@ -1,16 +1,29 @@
 import {GameObjects, Scene} from 'phaser';
 import SaveManager from "../managers/SaveManager.ts";
-import {PlayerShipsData} from "../gameData/PlayerShipsData.ts";
+import {PlayerShipData, PlayerShipsData} from "../gameData/PlayerShipsData.ts";
 import {ShipColorData} from "../gameData/ShipColorData.ts";
 import ShipAppearance from "../utils/ShipAppearance.ts";
 import GameConstants from "../GameConstants.ts";
 import RegistryConstants from "../RegistryConstants.ts";
 import SaveConstants from "../SaveConstants.ts";
+import {futureText} from "./TextStyles.ts";
+
+// A stat of the sheet of the ship, shown as a bar: "SPEED [#####     ]"
+type StatDefinition = {
+    label: string;
+    read: (ship: PlayerShipData) => number;
+};
+
+type StatRow = StatDefinition & {
+    bar: GameObjects.Rectangle;
+    max: number;            // Best value among all the ships = full bar
+};
 
 /**
  * Ship customization menu, on the home screen.
  *  - Left / right: changes the design (playerShips.json)
  *  - Up / down: changes the color (shipColors.json)
+ * Under the preview, a sheet shows the name and the stats of the ship (speed, damage, health).
  *
  * The choice is:
  *  - saved (SaveManager), to be found again in the next game
@@ -19,8 +32,25 @@ import SaveConstants from "../SaveConstants.ts";
 export default class ShipCustomizationMenu {
     private static readonly PREVIEW_ANGLE: number = -90;
     private static readonly PREVIEW_SCALE: number = 3;
-    private static readonly COLOR_NAME_OFFSET_Y: number = 200;
-    private static readonly CONTROLS_HINT_OFFSET_Y: number = 280;
+    private static readonly PREVIEW_OFFSET_Y: number = -60;
+    private static readonly NAME_OFFSET_Y: number = -200;
+    private static readonly COLOR_NAME_OFFSET_Y: number = 190;
+    private static readonly STATS_OFFSET_Y: number = 270;
+    private static readonly CONTROLS_HINT_OFFSET_Y: number = 520;
+    private static readonly NAME_FONT_SIZE: number = 56;
+    private static readonly NAME_COLOR: string = '#ffd93c';
+    private static readonly STAT_FONT_SIZE: number = 36;
+    private static readonly STAT_ROW_SPACING: number = 70;
+    private static readonly STAT_BAR_WIDTH: number = 360;
+    private static readonly STAT_BAR_HEIGHT: number = 28;
+    private static readonly STAT_BAR_OFFSET_X: number = -60;
+    private static readonly STAT_LABEL_GAP: number = 30;
+    private static readonly STAT_BAR_COLOR: number = 0x5cff7a;
+    private static readonly STATS: StatDefinition[] = [
+        {label: 'SPEED', read: ship => ship.movementSpeed},
+        {label: 'DAMAGE', read: ship => ship.damage},
+        {label: 'HEALTH', read: ship => ship.health}
+    ];
 
     private readonly _scene: Scene;
     private readonly _saveManager: SaveManager;
@@ -29,6 +59,8 @@ export default class ShipCustomizationMenu {
     private readonly _colors: ShipColorData[];
     private _preview: GameObjects.Sprite;
     private _colorText: GameObjects.Text;
+    private _nameText: GameObjects.Text;
+    private readonly _statRows: StatRow[] = [];
     private _shipIndex: number = 0;
     private _colorIndex: number = 0;
 
@@ -59,14 +91,44 @@ export default class ShipCustomizationMenu {
 
     private createTexts() {
         const centerX: number = this._scene.scale.width / 2;
-        const previewY: number = this._scene.scale.height / 2;
+        const previewY: number = this._scene.scale.height / 2 + ShipCustomizationMenu.PREVIEW_OFFSET_Y;
+        this._nameText = this._scene.add.text(centerX, previewY + ShipCustomizationMenu.NAME_OFFSET_Y, '',
+            futureText(ShipCustomizationMenu.NAME_FONT_SIZE, ShipCustomizationMenu.NAME_COLOR)).setOrigin(0.5);
 
         this._preview = this._scene.add.sprite(centerX, previewY, GameConstants.ATLAS_KEY)
             .setAngle(ShipCustomizationMenu.PREVIEW_ANGLE).setScale(ShipCustomizationMenu.PREVIEW_SCALE);
         this._colorText = this._scene.add.text(centerX, previewY + ShipCustomizationMenu.COLOR_NAME_OFFSET_Y, '',
             {fontSize: '40px', color: '#fff'}).setOrigin(0.5);
+        this.createStatRows(centerX, previewY + ShipCustomizationMenu.STATS_OFFSET_Y);
         this._scene.add.text(centerX, previewY + ShipCustomizationMenu.CONTROLS_HINT_OFFSET_Y,
             'LEFT / RIGHT : design    UP / DOWN : color', {fontSize: '28px', color: '#aaa'}).setOrigin(0.5);
+    }
+
+    private createStatRows(centerX: number, startY: number) {
+        const ships: PlayerShipData[] = Object.values(this._shipsData);
+
+        ShipCustomizationMenu.STATS.forEach((stat, index) => {
+            const bar = this.createStatBar(stat.label, centerX, startY + index * ShipCustomizationMenu.STAT_ROW_SPACING);
+            this._statRows.push({...stat, bar, max: Math.max(...ships.map(stat.read))});
+        });
+    }
+
+    // A label, the empty frame of the bar, and the bar itself (returned, to be filled later)
+    private createStatBar(label: string, centerX: number, y: number): GameObjects.Rectangle {
+        const barX: number = centerX + ShipCustomizationMenu.STAT_BAR_OFFSET_X;
+        const {STAT_BAR_WIDTH: width, STAT_BAR_HEIGHT: height} = ShipCustomizationMenu;
+
+        this._scene.add.text(barX - ShipCustomizationMenu.STAT_LABEL_GAP, y, label,
+            futureText(ShipCustomizationMenu.STAT_FONT_SIZE)).setOrigin(1, 0.5);
+        this._scene.add.rectangle(barX, y, width, height, 0x000000, 0.6).setOrigin(0, 0.5).setStrokeStyle(3, 0xffffff);
+
+        return this._scene.add.rectangle(barX, y, width, height, ShipCustomizationMenu.STAT_BAR_COLOR).setOrigin(0, 0.5);
+    }
+
+    private refreshStats(ship: PlayerShipData) {
+        this._nameText.setText(ship.name);
+        for (const row of this._statRows)
+            row.bar.setScale(row.read(ship) / row.max, 1);
     }
 
     private bindKeys() {
@@ -100,6 +162,7 @@ export default class ShipCustomizationMenu {
 
         ShipAppearance.apply(this._preview, this._shipsData[shipId], color);
         this._colorText.setText('< ' + color.name + ' >');
+        this.refreshStats(this._shipsData[shipId]);
     }
 
     // Shares the choice with the game through the registry, and saves it for the next session
