@@ -66,6 +66,8 @@ export default abstract class BaseEnemy extends Entity {
     destroy(fromScene?: boolean) {
         // The timer belongs to the scene clock: remove it, or it would keep calling a destroyed enemy
         this._shootTimer?.remove();
+        // Tweens (e.g. the fade of a teleportation) would keep animating a destroyed enemy
+        this.scene?.tweens.killTweensOf(this);
 
         super.destroy(fromScene);
     }

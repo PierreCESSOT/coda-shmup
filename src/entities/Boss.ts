@@ -2,18 +2,19 @@ import {Display} from 'phaser';
 import BaseEnemy from './BaseEnemy.ts';
 import Entity from './Entity.ts';
 import Health from "../components/Health.ts";
-import SineMovement from "../components/SineMovement.ts";
+import IPatternMovement from "../components/IPatternMovement.ts";
 import SpreadWeapon from "../components/SpreadWeapon.ts";
 import GameConstants from "../GameConstants.ts";
 import {toBulletData} from "../gameData/BulletConfigData.ts";
 import type {BossAttackData, BossData} from "../gameData/BossesData.ts";
+import PatternMovementFactory from "../utils/PatternMovementFactory.ts";
 
 export type BossSetup = {
     bulletsGroup: Phaser.Physics.Arcade.Group;
     data: BossData;
     health: number;
-    finisherThreshold: number;   // Health ratio under which only finish() can kill the boss
-    target: Entity;              // What the aimed attacks shoot at
+    finisherThreshold: number;   // Share of health under which only finish() can kill the boss
+    target: Entity;              // What the aimed attacks and the dash aim at
 }
 
 type BossAttack = {
@@ -21,12 +22,13 @@ type BossAttack = {
     weapon: SpreadWeapon;
 }
 
-// Enters the screen, then sways and cycles through its attacks.
+// Enters the screen, then moves and attacks.
 // Under a health threshold, bullets no longer hurt it: only finish() can kill it
 export default class Boss extends BaseEnemy {
     public static readonly FINISHER_READY_EVENT: string = 'finisherReady';
 
     private _data: BossData;
+    private _movement: IPatternMovement;
     private _target: Entity;
     private _attacks: BossAttack[] = [];
     private _attackIndex: number = 0;
@@ -49,7 +51,8 @@ export default class Boss extends BaseEnemy {
         this.restoreAppearance();
 
         this.initHealth(setup.health);
-        this.addComponent(new SineMovement(setup.data.movement));
+        this._movement = PatternMovementFactory.create(setup.data.movement, setup.target);
+        this.addComponent(this._movement);
         this.initAttacks(setup.bulletsGroup, setup.data.attacks);
         this.watchFinisherThreshold(setup.finisherThreshold);
 
@@ -96,7 +99,7 @@ export default class Boss extends BaseEnemy {
 
     protected move(deltaTime: number) {
         if (this._hasEntered) {
-            this.getComponent(SineMovement)?.move(this, deltaTime);
+            this._movement.move(this, deltaTime);
             return;
         }
 
@@ -147,6 +150,6 @@ export default class Boss extends BaseEnemy {
 
         this.y = entry.targetY;
         this._hasEntered = true;
-        this.getComponent(SineMovement)?.reset(this.x);
+        this._movement.reset(this);
     }
 }

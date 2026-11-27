@@ -1,4 +1,4 @@
-import {SineMovementData} from "./SineMovementData.ts";
+import {BossMovementData} from "./MovementData.ts";
 import {SpreadPatternData} from "./SpreadShotData.ts";
 
 export type BossesData = {
@@ -15,7 +15,7 @@ export type BossData = {
     scale: number;
     health: number;
     entry: BossEntryData;
-    movement: SineMovementData;
+    movement: BossMovementData;
     attackDelay: number;            // Time between two attacks, in milliseconds
     attacks: BossAttackData[];      // Attacks are used in this order, then loop
 }
@@ -30,7 +30,7 @@ export type BossAttackData = SpreadPatternData & {
 }
 
 export type FinisherData = {
-    healthThreshold: number;        // Health ratio under which bullets no longer hurt and the laser is needed
+    healthThreshold: number;        // Share of health under which bullets do nothing: the laser is needed
     chargeTime: number;             // Time to hold the key to charge the laser, in seconds
     beamWidth: number;
     color: string;

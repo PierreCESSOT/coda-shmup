@@ -24,7 +24,7 @@ export default class SineEnemy extends BaseEnemy {
     public enable(x: number, y: number) {
         super.enable(x, y);
 
-        this.getComponent(SineMovement)?.reset(x);
+        this.getComponent(SineMovement)?.reset(this);
     }
 
     protected shoot() {
